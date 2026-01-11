@@ -172,6 +172,41 @@ public class DienstplanDAO {
     }
     
     /**
+     * Findet alle Dienstpläne für einen bestimmten Monat
+     */
+    public List<Dienstplan> findByMonat(YearMonth monat) throws SQLException {
+        if (monat == null) {
+            return new ArrayList<>();
+        }
+
+        String sql = """
+            SELECT id, name, monat_jahr, status, bemerkung, erstellt_am, letztes_update,
+                   created_at, updated_at
+            FROM dienstplan
+            WHERE monat_jahr = ?
+            ORDER BY name
+        """;
+
+        List<Dienstplan> dienstplaene = new ArrayList<>();
+
+        try (Connection conn = DatabaseManager.createConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, formatYearMonth(monat));
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Dienstplan dienstplan = mapResultSetToDienstplan(rs);
+                    loadDienste(dienstplan);
+                    dienstplaene.add(dienstplan);
+                }
+            }
+        }
+
+        return dienstplaene;
+    }
+
+    /**
      * Findet alle Dienstpläne für einen bestimmten Zeitraum
      */
     public List<Dienstplan> findByDateRange(YearMonth startMonat, YearMonth endMonat) throws SQLException {
