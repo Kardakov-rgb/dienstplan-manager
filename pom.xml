@@ -64,13 +64,13 @@
             <version>3.14.0</version>
         </dependency>
         
-        <!-- Datum/Zeit Handling (falls du mehr als java.time brauchst) -->
+        <!-- Connection Pool für bessere DB-Performance -->
         <dependency>
-            <groupId>org.threeten</groupId>
-            <artifactId>threeten-extra</artifactId>
-            <version>1.7.2</version>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+            <version>5.1.0</version>
         </dependency>
-        
+
         <!-- Testing Dependencies -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>

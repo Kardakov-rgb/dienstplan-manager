@@ -135,30 +135,46 @@ public Optional<Person> findById(Long id) throws SQLException {
     }
     
     /**
-     * Lädt alle Personen aus der Datenbank
+     * Lädt alle Personen aus der Datenbank.
+     * Optimiert mit Batch-Loading für Abwesenheiten (vermeidet N+1 Problem).
      */
     public List<Person> findAll() throws SQLException {
         String sql = """
             SELECT id, name, anzahl_dienste, arbeits_tage, verfuegbare_dienst_arten,
                    created_at, updated_at
-            FROM person 
+            FROM person
             ORDER BY name
         """;
-        
+
         List<Person> personen = new ArrayList<>();
-        
+
         try (Connection conn = DatabaseManager.createConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
-            
+
             while (rs.next()) {
                 Person person = mapResultSetToPerson(rs);
-                loadAbwesenheiten(person);
                 personen.add(person);
             }
         }
-        
-        logger.debug("Anzahl geladene Personen: {}", personen.size());
+
+        // Batch-Load: Alle Abwesenheiten in einer einzigen Query laden
+        if (!personen.isEmpty()) {
+            AbwesenheitDAO abwesenheitDAO = new AbwesenheitDAO();
+            List<Long> personIds = personen.stream()
+                .map(Person::getId)
+                .toList();
+
+            Map<Long, List<Abwesenheit>> abwesenheitenMap = abwesenheitDAO.findByPersonIds(personIds);
+
+            // Abwesenheiten den Personen zuordnen
+            for (Person person : personen) {
+                List<Abwesenheit> abwesenheiten = abwesenheitenMap.getOrDefault(person.getId(), new ArrayList<>());
+                person.setAbwesenheiten(abwesenheiten);
+            }
+        }
+
+        logger.debug("Anzahl geladene Personen: {} (mit Batch-Loading)", personen.size());
         return personen;
     }
     

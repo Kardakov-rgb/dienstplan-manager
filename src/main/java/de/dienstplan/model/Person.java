@@ -27,17 +27,17 @@ public class Person {
     
     public Person(String name) {
         this();
-        this.name = name;
+        setName(name); // Nutzt Validierung
     }
     
-    public Person(Long id, String name, int anzahlDienste, 
+    public Person(Long id, String name, int anzahlDienste,
                   EnumSet<Wochentag> arbeitsTage, EnumSet<DienstArt> verfuegbareDienstArten) {
         this();
         this.id = id;
-        this.name = name;
-        this.anzahlDienste = anzahlDienste;
+        setName(name); // Nutzt Validierung
+        setAnzahlDienste(anzahlDienste); // Nutzt Validierung
         this.arbeitsTage = arbeitsTage != null ? arbeitsTage.clone() : EnumSet.noneOf(Wochentag.class);
-        this.verfuegbareDienstArten = verfuegbareDienstArten != null ? 
+        this.verfuegbareDienstArten = verfuegbareDienstArten != null ?
             verfuegbareDienstArten.clone() : EnumSet.noneOf(DienstArt.class);
     }
     
@@ -53,16 +53,22 @@ public class Person {
     public String getName() {
         return name;
     }
-    
+
     public void setName(String name) {
-        this.name = name;
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("Name darf nicht null oder leer sein");
+        }
+        this.name = name.trim();
     }
     
     public int getAnzahlDienste() {
         return anzahlDienste;
     }
-    
+
     public void setAnzahlDienste(int anzahlDienste) {
+        if (anzahlDienste < 0) {
+            throw new IllegalArgumentException("Anzahl Dienste darf nicht negativ sein");
+        }
         this.anzahlDienste = anzahlDienste;
     }
     

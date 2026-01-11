@@ -3,6 +3,7 @@ package de.dienstplan.controller;
 import de.dienstplan.algorithm.DienstplanGenerator;
 import de.dienstplan.database.*;
 import de.dienstplan.model.*;
+import de.dienstplan.service.*;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -93,20 +94,41 @@ public class DienstplanerstellungController implements Initializable {
     private final PersonDAO personDAO;
     private final DienstplanDAO dienstplanDAO;
     private final DienstDAO dienstDAO;
-    
+    private final DienstplanService dienstplanService;
+    private final CommandManager commandManager;
+
     private List<Person> verfuegbarePersonen;
     private Dienstplan aktuellerDienstplan;
     private YearMonth aktuellerMonat;
     private Dienst ausgewaehlterDienst;
-    
+
     // UI-Datenstrukturen
     private final ObservableList<PersonStatistik> personStatistikListe = FXCollections.observableArrayList();
     private Map<LocalDate, List<Dienst>> tagesDienste = new HashMap<>();
-    
+
+    // UI-Konstanten (statt Emojis im Code)
+    private static final String ICON_SUCCESS = "[OK]";
+    private static final String ICON_WARNING = "[!]";
+
     public DienstplanerstellungController() {
         this.personDAO = new PersonDAO();
         this.dienstplanDAO = new DienstplanDAO();
         this.dienstDAO = new DienstDAO();
+        this.dienstplanService = new DienstplanService(personDAO, dienstplanDAO);
+        this.commandManager = new CommandManager();
+        this.aktuellerMonat = YearMonth.now();
+    }
+
+    /**
+     * Konstruktor mit Dependency Injection (für Tests)
+     */
+    public DienstplanerstellungController(PersonDAO personDAO, DienstplanDAO dienstplanDAO,
+                                          DienstDAO dienstDAO, DienstplanService dienstplanService) {
+        this.personDAO = personDAO;
+        this.dienstplanDAO = dienstplanDAO;
+        this.dienstDAO = dienstDAO;
+        this.dienstplanService = dienstplanService;
+        this.commandManager = new CommandManager();
         this.aktuellerMonat = YearMonth.now();
     }
     
@@ -233,19 +255,34 @@ public class DienstplanerstellungController implements Initializable {
             showWarning("Keine Personen", "Es sind keine Personen in der Personenverwaltung vorhanden.");
             return;
         }
-        
+
         // UI für Generierung vorbereiten
         generiereButton.setDisable(true);
         setStatus("Generiere Dienstplan...");
-        
+        zuweisungsgradBar.setProgress(0);
+
+        // Thread-safe: Defensive Kopie der Personenliste und des Monats erstellen
+        final List<Person> personenKopie = new ArrayList<>(verfuegbarePersonen);
+        final YearMonth monatKopie = aktuellerMonat;
+
         // Generierung in Background-Thread
         Task<DienstplanGenerator.DienstplanGenerierungResult> task = new Task<>() {
             @Override
             protected DienstplanGenerator.DienstplanGenerierungResult call() {
-                DienstplanGenerator generator = new DienstplanGenerator(verfuegbarePersonen, aktuellerMonat);
-                return generator.generiereDialenstplan();
+                DienstplanGenerator generator = new DienstplanGenerator(personenKopie, monatKopie);
+
+                // Fortschritts-Callback setzen
+                generator.setProgressCallback(progress -> {
+                    Platform.runLater(() -> {
+                        updateProgress(progress, 1.0);
+                        zuweisungsgradBar.setProgress(progress);
+                        setStatus(String.format("Generiere Dienstplan... %.0f%%", progress * 100));
+                    });
+                });
+
+                return generator.generiereDienstplan();
             }
-            
+
             @Override
             protected void succeeded() {
                 Platform.runLater(() -> {
@@ -253,18 +290,25 @@ public class DienstplanerstellungController implements Initializable {
                     onGenerierungAbgeschlossen(result);
                 });
             }
-            
+
             @Override
             protected void failed() {
                 Platform.runLater(() -> {
                     logger.error("Generierung fehlgeschlagen", getException());
                     setStatus("Generierung fehlgeschlagen: " + getException().getMessage());
                     generiereButton.setDisable(false);
+                    zuweisungsgradBar.setProgress(0);
                 });
             }
         };
-        
-        new Thread(task).start();
+
+        // Progress-Property binden
+        zuweisungsgradBar.progressProperty().bind(task.progressProperty());
+
+        Thread generierungsThread = new Thread(task);
+        generierungsThread.setDaemon(true);
+        generierungsThread.setName("Dienstplan-Generator");
+        generierungsThread.start();
     }
     
     private void onGenerierungAbgeschlossen(DienstplanGenerator.DienstplanGenerierungResult result) {
@@ -475,7 +519,7 @@ public class DienstplanerstellungController implements Initializable {
             List<Dienst> offeneDienste = aktuellerDienstplan.getOffeneDienste();
             
             if (offeneDienste.isEmpty()) {
-                showInfo("Keine offenen Dienste", "Alle Dienste sind zugewiesen! 🎉");
+                showInfo("Keine offenen Dienste", "Alle Dienste sind zugewiesen! " + ICON_SUCCESS);
             } else {
                 StringBuilder message = new StringBuilder();
                 message.append("Folgende Dienste sind noch nicht zugewiesen:\n\n");
@@ -501,13 +545,13 @@ public class DienstplanerstellungController implements Initializable {
             List<String> konflikte = aktuellerDienstplan.getKonflikte();
             
             if (konflikte.isEmpty()) {
-                showInfo("Keine Konflikte", "Der Dienstplan enthält keine Konflikte! ✅");
+                showInfo("Keine Konflikte", "Der Dienstplan enthält keine Konflikte! " + ICON_SUCCESS);
             } else {
                 StringBuilder message = new StringBuilder();
                 message.append("Folgende Konflikte wurden gefunden:\n\n");
                 
                 for (String konflikt : konflikte) {
-                    message.append("⚠️ ").append(konflikt).append("\n");
+                    message.append(ICON_WARNING).append(" ").append(konflikt).append("\n");
                 }
                 
                 Alert alert = new Alert(Alert.AlertType.WARNING);

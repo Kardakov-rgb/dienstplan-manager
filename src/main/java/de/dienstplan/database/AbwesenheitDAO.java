@@ -7,9 +7,8 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Data Access Object für Abwesenheits-Operationen
@@ -396,24 +395,104 @@ public class AbwesenheitDAO {
         if (personId == null) {
             return 0;
         }
-        
+
         String sql = "SELECT COUNT(*) FROM abwesenheit WHERE person_id = ?";
-        
+
         try (Connection conn = DatabaseManager.createConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
+
             stmt.setLong(1, personId);
-            
+
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     return rs.getInt(1);
                 }
             }
         }
-        
+
         return 0;
     }
-    
+
+    /**
+     * Lädt alle Abwesenheiten und gruppiert sie nach Person-ID.
+     * Diese Methode ist optimiert für Batch-Loading um das N+1 Problem zu vermeiden.
+     *
+     * @return Map mit Person-ID als Key und Liste der Abwesenheiten als Value
+     */
+    public Map<Long, List<Abwesenheit>> findAllGroupedByPersonId() throws SQLException {
+        String sql = """
+            SELECT id, person_id, start_datum, end_datum, art, bemerkung,
+                   created_at, updated_at
+            FROM abwesenheit
+            ORDER BY person_id, start_datum
+        """;
+
+        Map<Long, List<Abwesenheit>> result = new HashMap<>();
+
+        try (Connection conn = DatabaseManager.createConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                Abwesenheit abwesenheit = mapResultSetToAbwesenheit(rs);
+                result.computeIfAbsent(abwesenheit.getPersonId(), k -> new ArrayList<>())
+                      .add(abwesenheit);
+            }
+        }
+
+        logger.debug("Abwesenheiten geladen und gruppiert: {} Personen", result.size());
+        return result;
+    }
+
+    /**
+     * Lädt alle Abwesenheiten für eine Liste von Person-IDs.
+     * Diese Methode ist optimiert für Batch-Loading um das N+1 Problem zu vermeiden.
+     *
+     * @param personIds Liste der Person-IDs
+     * @return Map mit Person-ID als Key und Liste der Abwesenheiten als Value
+     */
+    public Map<Long, List<Abwesenheit>> findByPersonIds(Collection<Long> personIds) throws SQLException {
+        if (personIds == null || personIds.isEmpty()) {
+            return new HashMap<>();
+        }
+
+        // SQL mit IN-Clause bauen
+        String placeholders = personIds.stream()
+            .map(id -> "?")
+            .collect(Collectors.joining(","));
+
+        String sql = String.format("""
+            SELECT id, person_id, start_datum, end_datum, art, bemerkung,
+                   created_at, updated_at
+            FROM abwesenheit
+            WHERE person_id IN (%s)
+            ORDER BY person_id, start_datum
+        """, placeholders);
+
+        Map<Long, List<Abwesenheit>> result = new HashMap<>();
+
+        try (Connection conn = DatabaseManager.createConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            // Parameter setzen
+            int index = 1;
+            for (Long personId : personIds) {
+                stmt.setLong(index++, personId);
+            }
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Abwesenheit abwesenheit = mapResultSetToAbwesenheit(rs);
+                    result.computeIfAbsent(abwesenheit.getPersonId(), k -> new ArrayList<>())
+                          .add(abwesenheit);
+                }
+            }
+        }
+
+        logger.debug("Abwesenheiten für {} Personen geladen", personIds.size());
+        return result;
+    }
+
     // Private Hilfsmethoden
     
     private Abwesenheit mapResultSetToAbwesenheit(ResultSet rs) throws SQLException {
