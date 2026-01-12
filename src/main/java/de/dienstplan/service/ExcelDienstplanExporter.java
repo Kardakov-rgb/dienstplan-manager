@@ -98,9 +98,9 @@ public class ExcelDienstplanExporter {
         // Dienste nach Person und Datum gruppieren
         Map<Long, Map<LocalDate, Dienst>> diensteNachPersonUndDatum = new HashMap<>();
         for (Dienst dienst : dienstplan.getDienste()) {
-            if (dienst.getZugewiesenePerson() != null) {
+            if (dienst.getPersonId() != null) {
                 diensteNachPersonUndDatum
-                    .computeIfAbsent(dienst.getZugewiesenePerson().getId(), k -> new HashMap<>())
+                    .computeIfAbsent(dienst.getPersonId(), k -> new HashMap<>())
                     .put(dienst.getDatum(), dienst);
             }
         }
@@ -149,7 +149,7 @@ public class ExcelDienstplanExporter {
 
                 Dienst dienst = personDienste.get(datum);
                 if (dienst != null) {
-                    cell.setCellValue(dienst.getDienstArt().getKurzName());
+                    cell.setCellValue(dienst.getArt().getKurzName());
                     cell.setCellStyle(dienstStyle);
                 } else if (isWochenende(datum)) {
                     cell.setCellStyle(wochenendStyle);
@@ -183,10 +183,10 @@ public class ExcelDienstplanExporter {
 
         // Dienste pro Person und DienstArt zählen
         Map<Long, Map<DienstArt, Long>> diensteCounts = dienstplan.getDienste().stream()
-            .filter(d -> d.getZugewiesenePerson() != null)
+            .filter(d -> d.getPersonId() != null)
             .collect(Collectors.groupingBy(
-                d -> d.getZugewiesenePerson().getId(),
-                Collectors.groupingBy(Dienst::getDienstArt, Collectors.counting())
+                Dienst::getPersonId,
+                Collectors.groupingBy(Dienst::getArt, Collectors.counting())
             ));
 
         // Header

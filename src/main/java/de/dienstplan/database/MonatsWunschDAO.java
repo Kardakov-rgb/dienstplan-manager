@@ -39,7 +39,7 @@ public class MonatsWunschDAO {
             stmt.setLong(1, wunsch.getPersonId());
             stmt.setString(2, wunsch.getPersonName());
             stmt.setString(3, formatMonat(wunsch.getMonat()));
-            stmt.setDate(4, Date.valueOf(wunsch.getDatum()));
+            stmt.setDate(4, java.sql.Date.valueOf(wunsch.getDatum()));
             stmt.setString(5, wunsch.getTyp().name());
 
             if (wunsch.getErfuellt() != null) {
@@ -89,7 +89,7 @@ public class MonatsWunschDAO {
                     stmt.setLong(1, wunsch.getPersonId());
                     stmt.setString(2, wunsch.getPersonName());
                     stmt.setString(3, formatMonat(wunsch.getMonat()));
-                    stmt.setDate(4, Date.valueOf(wunsch.getDatum()));
+                    stmt.setDate(4, java.sql.Date.valueOf(wunsch.getDatum()));
                     stmt.setString(5, wunsch.getTyp().name());
 
                     if (wunsch.getErfuellt() != null) {
@@ -311,7 +311,7 @@ public class MonatsWunschDAO {
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setLong(1, personId);
-            stmt.setDate(2, Date.valueOf(datum));
+            stmt.setDate(2, java.sql.Date.valueOf(datum));
 
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
@@ -343,7 +343,7 @@ public class MonatsWunschDAO {
             stmt.setLong(1, wunsch.getPersonId());
             stmt.setString(2, wunsch.getPersonName());
             stmt.setString(3, formatMonat(wunsch.getMonat()));
-            stmt.setDate(4, Date.valueOf(wunsch.getDatum()));
+            stmt.setDate(4, java.sql.Date.valueOf(wunsch.getDatum()));
             stmt.setString(5, wunsch.getTyp().name());
 
             if (wunsch.getErfuellt() != null) {
@@ -525,7 +525,7 @@ public class MonatsWunschDAO {
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setLong(1, personId);
-            stmt.setDate(2, Date.valueOf(datum));
+            stmt.setDate(2, java.sql.Date.valueOf(datum));
 
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
