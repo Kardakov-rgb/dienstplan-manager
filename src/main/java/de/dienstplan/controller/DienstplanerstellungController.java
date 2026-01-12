@@ -161,16 +161,17 @@ public class DienstplanerstellungController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         logger.info("Initialisiere Dienstplanerstellung...");
-        
+
         try {
             initializeDatabase();
             initializeComponents();
             loadPersonen();
+            ladeExistierendenDienstplan();
             updateKalender();
-            
+
             setStatus("Dienstplanerstellung bereit");
             logger.info("Dienstplanerstellung erfolgreich initialisiert");
-            
+
         } catch (Exception e) {
             logger.error("Fehler beim Initialisieren der Dienstplanerstellung", e);
             setStatus("Fehler beim Laden: " + e.getMessage());
@@ -208,14 +209,16 @@ public class DienstplanerstellungController implements Initializable {
             if (neu != null) {
                 updateAktuellerMonat();
                 updateDienstplanName();
+                ladeExistierendenDienstplan();
                 updateKalender();
             }
         });
-        
+
         jahrComboBox.valueProperty().addListener((obs, old, neu) -> {
             if (neu != null) {
                 updateAktuellerMonat();
                 updateDienstplanName();
+                ladeExistierendenDienstplan();
                 updateKalender();
             }
         });
@@ -264,13 +267,57 @@ public class DienstplanerstellungController implements Initializable {
     
     private void loadPersonen() throws SQLException {
         verfuegbarePersonen = personDAO.findAll();
-        
+
         // Person ComboBox aktualisieren
         dienstPersonComboBox.getItems().clear();
         dienstPersonComboBox.getItems().add(null); // "Keine Zuweisung" Option
         dienstPersonComboBox.getItems().addAll(verfuegbarePersonen);
-        
+
         logger.info("Personen geladen: {}", verfuegbarePersonen.size());
+    }
+
+    /**
+     * Lädt einen existierenden Dienstplan für den aktuellen Monat aus der Datenbank.
+     * Es wird immer nur ein Dienstplan pro Monat unterstützt.
+     */
+    private void ladeExistierendenDienstplan() {
+        try {
+            List<Dienstplan> dienstplaene = dienstplanDAO.findByMonat(aktuellerMonat);
+
+            if (!dienstplaene.isEmpty()) {
+                // Es gibt einen Dienstplan für diesen Monat - lade den ersten (und einzigen)
+                aktuellerDienstplan = dienstplaene.get(0);
+
+                // Name im Textfeld setzen
+                dienstplanNameField.setText(aktuellerDienstplan.getName());
+
+                // Tages-Dienste Map aktualisieren
+                updateTagesDiensteMap();
+
+                // Statistiken aktualisieren
+                updateStatistiken();
+
+                // Buttons aktivieren
+                speichernButton.setDisable(false);
+                if (exportButton != null) {
+                    exportButton.setDisable(false);
+                }
+
+                logger.info("Existierenden Dienstplan geladen: {} für {}",
+                    aktuellerDienstplan.getName(), aktuellerMonat);
+                setStatus("Dienstplan geladen: " + aktuellerDienstplan.getName());
+                bottomStatusLabel.setText("Dienstplan: " + aktuellerDienstplan.getName());
+
+            } else {
+                // Kein Dienstplan vorhanden - UI zurücksetzen
+                clearAktuellerDienstplan();
+                logger.info("Kein Dienstplan für {} vorhanden", aktuellerMonat);
+            }
+
+        } catch (SQLException e) {
+            logger.error("Fehler beim Laden des Dienstplans für {}", aktuellerMonat, e);
+            clearAktuellerDienstplan();
+        }
     }
     
     // Event Handler
@@ -402,7 +449,7 @@ public class DienstplanerstellungController implements Initializable {
             showWarning("Kein Dienstplan", "Es ist kein Dienstplan zum Speichern vorhanden.");
             return;
         }
-        
+
         try {
             // Name aus UI übernehmen
             String name = dienstplanNameField.getText().trim();
@@ -410,40 +457,29 @@ public class DienstplanerstellungController implements Initializable {
                 showWarning("Name fehlt", "Bitte geben Sie einen Namen für den Dienstplan ein.");
                 return;
             }
-            
+
             aktuellerDienstplan.setName(name);
-            
-            // Prüfen ob bereits existiert
-            if (dienstplanDAO.existsByNameAndMonat(name, aktuellerMonat)) {
-                Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-                confirm.setTitle("Dienstplan existiert bereits");
-                confirm.setHeaderText("Ein Dienstplan mit diesem Namen und Monat existiert bereits.");
-                confirm.setContentText("Möchten Sie den bestehenden Dienstplan überschreiben?");
-                
-                Optional<ButtonType> result = confirm.showAndWait();
-                if (result.isEmpty() || result.get() != ButtonType.OK) {
-                    return;
-                }
-                
-                // Bestehenden Plan finden und überschreiben
-                Optional<Dienstplan> existing = dienstplanDAO.findByNameAndMonat(name, aktuellerMonat);
-                if (existing.isPresent()) {
-                    aktuellerDienstplan.setId(existing.get().getId());
-                    dienstplanDAO.update(aktuellerDienstplan);
-                    setStatus("Dienstplan aktualisiert: " + name);
-                } else {
-                    aktuellerDienstplan = dienstplanDAO.create(aktuellerDienstplan);
-                    setStatus("Dienstplan erstellt: " + name);
-                }
+
+            // Prüfen ob bereits ein Dienstplan für diesen Monat existiert
+            List<Dienstplan> existierendeDienstplaene = dienstplanDAO.findByMonat(aktuellerMonat);
+
+            if (!existierendeDienstplaene.isEmpty()) {
+                // Es existiert bereits ein Dienstplan - automatisch überschreiben
+                Dienstplan existierenderPlan = existierendeDienstplaene.get(0);
+                aktuellerDienstplan.setId(existierenderPlan.getId());
+                dienstplanDAO.update(aktuellerDienstplan);
+                setStatus("Dienstplan aktualisiert: " + name);
+                logger.info("Dienstplan aktualisiert: {} (ID: {})", name, aktuellerDienstplan.getId());
             } else {
                 // Neuen Plan erstellen
                 aktuellerDienstplan = dienstplanDAO.create(aktuellerDienstplan);
                 setStatus("Dienstplan gespeichert: " + name);
+                logger.info("Neuer Dienstplan erstellt: {} (ID: {})", name, aktuellerDienstplan.getId());
             }
-            
+
             updateLetzteAktualisierung();
             showInfo("Erfolgreich gespeichert", "Der Dienstplan wurde erfolgreich gespeichert.");
-            
+
         } catch (SQLException e) {
             logger.error("Fehler beim Speichern des Dienstplans", e);
             showError("Speicherfehler", "Der Dienstplan konnte nicht gespeichert werden.", e);
@@ -455,17 +491,17 @@ public class DienstplanerstellungController implements Initializable {
         aktuellerMonat = aktuellerMonat.minusMonths(1);
         updateMonatJahrComboBoxes();
         updateDienstplanName();
+        ladeExistierendenDienstplan();
         updateKalender();
-        clearAktuellerDienstplan();
     }
-    
+
     @FXML
     private void onNaechsterMonat() {
         aktuellerMonat = aktuellerMonat.plusMonths(1);
         updateMonatJahrComboBoxes();
         updateDienstplanName();
+        ladeExistierendenDienstplan();
         updateKalender();
-        clearAktuellerDienstplan();
     }
     
     @FXML
