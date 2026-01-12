@@ -20,26 +20,44 @@
                <Label text="Monat:" />
                <ComboBox fx:id="monatComboBox" prefWidth="120.0" />
             </VBox>
-            
+
             <VBox spacing="5.0">
                <Label text="Jahr:" />
                <ComboBox fx:id="jahrComboBox" prefWidth="80.0" />
             </VBox>
-            
+
             <VBox spacing="5.0">
                <Label text="Name:" />
                <TextField fx:id="dienstplanNameField" prefWidth="200.0" promptText="z.B. Dienstplan Dezember 2024" />
             </VBox>
-            
+
+            <!-- Excel-Buttons -->
+            <VBox spacing="5.0">
+               <Label text="Wunsch-Import:" />
+               <HBox spacing="5.0">
+                  <Button fx:id="excelVorlageButton" onAction="#onExcelVorlageHerunterladen"
+                          style="-fx-background-color: #607D8B; -fx-text-fill: white;"
+                          text="Vorlage" />
+                  <Button fx:id="excelImportButton" onAction="#onExcelWuenscheImportieren"
+                          style="-fx-background-color: #795548; -fx-text-fill: white;"
+                          text="Import" />
+               </HBox>
+            </VBox>
+
             <Region HBox.hgrow="ALWAYS" />
-            
+
             <VBox spacing="10.0">
-               <Button fx:id="generiereButton" onAction="#onDienstplanGenerieren" 
-                       style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold;" 
-                       text="🚀 Dienstplan generieren" />
-               <Button fx:id="speichernButton" disable="true" onAction="#onDienstplanSpeichern" 
-                       style="-fx-background-color: #2196F3; -fx-text-fill: white;" 
-                       text="💾 Speichern" />
+               <Button fx:id="generiereButton" onAction="#onDienstplanGenerieren"
+                       style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold;"
+                       text="Dienstplan generieren" />
+               <HBox spacing="5.0">
+                  <Button fx:id="speichernButton" disable="true" onAction="#onDienstplanSpeichern"
+                          style="-fx-background-color: #2196F3; -fx-text-fill: white;"
+                          text="Speichern" />
+                  <Button fx:id="exportButton" disable="true" onAction="#onDienstplanExportieren"
+                          style="-fx-background-color: #009688; -fx-text-fill: white;"
+                          text="Export" />
+               </HBox>
             </VBox>
          </HBox>
          
@@ -81,8 +99,13 @@
                <Label style="-fx-background-color: #E3F2FD; -fx-padding: 5px; -fx-border-color: #2196F3;" text="24h" />
                <Label style="-fx-background-color: #E8F5E8; -fx-padding: 5px; -fx-border-color: #4CAF50;" text="Visten" />
                <Label style="-fx-background-color: #FFF3E0; -fx-padding: 5px; -fx-border-color: #FF9800;" text="Spät" />
-               <Label style="-fx-background-color: #FFEBEE; -fx-padding: 5px; -fx-border-color: #f44336;" text="Leer" />
-               <Label style="-fx-background-color: #F3E5F5; -fx-padding: 5px; -fx-border-color: #9C27B0;" text="Abwesend" />
+               <Label style="-fx-background-color: #FFEBEE; -fx-padding: 5px; -fx-border-color: #f44336;" text="Offen" />
+               <Label style="-fx-background-color: #FCE4EC; -fx-padding: 5px; -fx-border-color: #E91E63;" text="U=Urlaub" />
+            </HBox>
+
+            <!-- Wunsch-Info (falls Wünsche importiert) -->
+            <HBox fx:id="wunschInfoPanel" alignment="CENTER_LEFT" managed="false" spacing="10.0" visible="false">
+               <Label fx:id="wunschInfoLabel" style="-fx-text-fill: #795548;" text="Keine Wünsche importiert" />
             </HBox>
             
             <Separator />
@@ -176,7 +199,7 @@
                   <!-- Dienste pro Person -->
                   <VBox spacing="10.0">
                      <Label style="-fx-font-weight: bold;" text="Dienste pro Person" />
-                     <TableView fx:id="personStatistikTabelle" prefHeight="200.0">
+                     <TableView fx:id="personStatistikTabelle" prefHeight="150.0">
                         <columns>
                            <TableColumn fx:id="personNameColumn" prefWidth="120.0" text="Person" />
                            <TableColumn fx:id="personAnzahlColumn" prefWidth="60.0" text="Anzahl" />
@@ -189,7 +212,31 @@
                         </columnResizePolicy>
                      </TableView>
                   </VBox>
-                  
+
+                  <Separator />
+
+                  <!-- Wunscherfüllung (nur sichtbar wenn Wünsche vorhanden) -->
+                  <VBox fx:id="wunscherfuellungPanel" managed="false" spacing="10.0" visible="false">
+                     <Label style="-fx-font-weight: bold;" text="Wunscherfuellung" />
+                     <GridPane hgap="15.0" vgap="8.0">
+                        <columnConstraints>
+                           <ColumnConstraints minWidth="120.0" />
+                           <ColumnConstraints hgrow="ALWAYS" />
+                        </columnConstraints>
+
+                        <Label text="Freiwuensche:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                        <Label fx:id="freiwunschStatLabel" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                        <Label text="Dienstwuensche:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                        <Label fx:id="dienstwunschStatLabel" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                        <Label text="Gesamt-Quote:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                        <Label fx:id="gesamtQuoteLabel" style="-fx-font-weight: bold;" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                     </GridPane>
+                     <Button fx:id="wunschDetailsButton" onAction="#onWunschDetailsAnzeigen"
+                             prefWidth="200.0" text="Details anzeigen" />
+                  </VBox>
+
                   <Separator />
                   
                   <!-- Schnellaktionen -->

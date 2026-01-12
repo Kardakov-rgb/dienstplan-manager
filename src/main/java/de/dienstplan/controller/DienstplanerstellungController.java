@@ -18,10 +18,14 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.stage.FileChooser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Path;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -42,6 +46,9 @@ public class DienstplanerstellungController implements Initializable {
     @FXML private TextField dienstplanNameField;
     @FXML private Button generiereButton;
     @FXML private Button speichernButton;
+    @FXML private Button exportButton;
+    @FXML private Button excelVorlageButton;
+    @FXML private Button excelImportButton;
     
     // FXML Controls - Status
     @FXML private Label statusLabel;
@@ -79,6 +86,15 @@ public class DienstplanerstellungController implements Initializable {
     @FXML private TableColumn<PersonStatistik, Integer> person24hColumn;
     @FXML private TableColumn<PersonStatistik, Integer> personVistenColumn;
     @FXML private TableColumn<PersonStatistik, Integer> personSpaetColumn;
+
+    // FXML Controls - Wunsch-Info und Statistik
+    @FXML private HBox wunschInfoPanel;
+    @FXML private Label wunschInfoLabel;
+    @FXML private VBox wunscherfuellungPanel;
+    @FXML private Label freiwunschStatLabel;
+    @FXML private Label dienstwunschStatLabel;
+    @FXML private Label gesamtQuoteLabel;
+    @FXML private Button wunschDetailsButton;
     
     // FXML Controls - Aktionen
     @FXML private Button alleBestaetigenButton;
@@ -96,11 +112,17 @@ public class DienstplanerstellungController implements Initializable {
     private final DienstDAO dienstDAO;
     private final DienstplanService dienstplanService;
     private final CommandManager commandManager;
+    private final MonatsWunschDAO monatsWunschDAO;
+    private final FairnessHistorieDAO fairnessHistorieDAO;
 
     private List<Person> verfuegbarePersonen;
     private Dienstplan aktuellerDienstplan;
     private YearMonth aktuellerMonat;
     private Dienst ausgewaehlterDienst;
+
+    // MonatsWunsch Daten
+    private List<MonatsWunsch> aktuelleWuensche = new ArrayList<>();
+    private Map<Long, WunschStatistik> aktuelleWunschStatistiken;
 
     // UI-Datenstrukturen
     private final ObservableList<PersonStatistik> personStatistikListe = FXCollections.observableArrayList();
@@ -116,6 +138,8 @@ public class DienstplanerstellungController implements Initializable {
         this.dienstDAO = new DienstDAO();
         this.dienstplanService = new DienstplanService(personDAO, dienstplanDAO);
         this.commandManager = new CommandManager();
+        this.monatsWunschDAO = new MonatsWunschDAO();
+        this.fairnessHistorieDAO = new FairnessHistorieDAO();
         this.aktuellerMonat = YearMonth.now();
     }
 
@@ -129,6 +153,8 @@ public class DienstplanerstellungController implements Initializable {
         this.dienstDAO = dienstDAO;
         this.dienstplanService = dienstplanService;
         this.commandManager = new CommandManager();
+        this.monatsWunschDAO = new MonatsWunschDAO();
+        this.fairnessHistorieDAO = new FairnessHistorieDAO();
         this.aktuellerMonat = YearMonth.now();
     }
     
@@ -265,11 +291,24 @@ public class DienstplanerstellungController implements Initializable {
         final List<Person> personenKopie = new ArrayList<>(verfuegbarePersonen);
         final YearMonth monatKopie = aktuellerMonat;
 
+        // MonatsWünsche und Fairness-Daten laden
+        final List<MonatsWunsch> wuenscheKopie = new ArrayList<>(aktuelleWuensche);
+        final Map<Long, FairnessScore> fairnessScores = new HashMap<>();
+        try {
+            List<FairnessScore> scores = fairnessHistorieDAO.calculateAllFairnessScores();
+            for (FairnessScore score : scores) {
+                fairnessScores.put(score.getPersonId(), score);
+            }
+        } catch (SQLException e) {
+            logger.warn("Konnte Fairness-Scores nicht laden: {}", e.getMessage());
+        }
+
         // Generierung in Background-Thread
         Task<DienstplanGenerator.DienstplanGenerierungResult> task = new Task<>() {
             @Override
             protected DienstplanGenerator.DienstplanGenerierungResult call() {
-                DienstplanGenerator generator = new DienstplanGenerator(personenKopie, monatKopie);
+                DienstplanGenerator generator = new DienstplanGenerator(
+                    personenKopie, monatKopie, wuenscheKopie, fairnessScores);
 
                 // Fortschritts-Callback setzen
                 generator.setProgressCallback(progress -> {
@@ -314,30 +353,37 @@ public class DienstplanerstellungController implements Initializable {
     private void onGenerierungAbgeschlossen(DienstplanGenerator.DienstplanGenerierungResult result) {
         try {
             aktuellerDienstplan = result.getDienstplan();
-            
+
             if (aktuellerDienstplan != null) {
                 // Dienstplan Name setzen falls leer
                 if (aktuellerDienstplan.getName() == null || aktuellerDienstplan.getName().trim().isEmpty()) {
                     aktuellerDienstplan.setName(dienstplanNameField.getText());
                 }
-                
+
                 // Tage-Dienste Map für Kalender erstellen
                 updateTagesDiensteMap();
-                
+
                 // UI aktualisieren
                 updateKalender();
                 updateStatistiken();
-                
+
+                // Wunschstatistiken speichern und anzeigen
+                aktuelleWunschStatistiken = result.getWunschStatistiken();
+                updateWunschStatistikAnzeige();
+
                 // Warnungen anzeigen falls vorhanden
                 if (result.hatWarnungen()) {
                     showWarnungen(result.getWarnungen());
                 }
-                
+
                 setStatus(result.getZusammenfassung());
                 speichernButton.setDisable(false);
-                
+                if (exportButton != null) {
+                    exportButton.setDisable(false);
+                }
+
                 logger.info("Dienstplan erfolgreich generiert: {}", result.getZusammenfassung());
-                
+
             } else {
                 setStatus("Generierung fehlgeschlagen - kein Dienstplan erstellt");
             }
@@ -906,7 +952,211 @@ personStatistikListe.sort((a, b) -> Integer.compare(b.gesamtDienste.get(), a.ges
         alert.setHeaderText(message);
         alert.showAndWait();
     }
-    
+
+    // ===== Excel-Funktionen =====
+
+    @FXML
+    private void onExcelVorlageHerunterladen() {
+        if (verfuegbarePersonen.isEmpty()) {
+            showWarning("Keine Personen", "Es sind keine Personen vorhanden. Bitte zuerst Personen anlegen.");
+            return;
+        }
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Excel-Vorlage speichern");
+        fileChooser.setInitialFileName(ExcelTemplateGenerator.generateDefaultFileName(aktuellerMonat));
+        fileChooser.getExtensionFilters().add(
+            new FileChooser.ExtensionFilter("Excel-Dateien", "*.xlsx"));
+
+        File file = fileChooser.showSaveDialog(kalenderGrid.getScene().getWindow());
+        if (file != null) {
+            try {
+                ExcelTemplateGenerator generator = new ExcelTemplateGenerator();
+                generator.generiereVorlage(verfuegbarePersonen, aktuellerMonat, file.toPath());
+                setStatus("Excel-Vorlage gespeichert: " + file.getName());
+                showInfo("Vorlage erstellt", "Die Excel-Vorlage wurde erfolgreich erstellt.\n\n" +
+                        "Bitte ausfuellen und dann importieren.");
+            } catch (IOException e) {
+                logger.error("Fehler beim Erstellen der Excel-Vorlage", e);
+                showError("Fehler", "Die Vorlage konnte nicht erstellt werden.", e);
+            }
+        }
+    }
+
+    @FXML
+    private void onExcelWuenscheImportieren() {
+        if (verfuegbarePersonen.isEmpty()) {
+            showWarning("Keine Personen", "Es sind keine Personen vorhanden.");
+            return;
+        }
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Excel-Wuensche importieren");
+        fileChooser.getExtensionFilters().add(
+            new FileChooser.ExtensionFilter("Excel-Dateien", "*.xlsx"));
+
+        File file = fileChooser.showOpenDialog(kalenderGrid.getScene().getWindow());
+        if (file != null) {
+            try {
+                ExcelWunschImporter importer = new ExcelWunschImporter(verfuegbarePersonen);
+                ExcelWunschImporter.ImportResult result = importer.importiereVorschau(file.toPath());
+
+                if (result.hatFehler()) {
+                    showError("Import-Fehler", "Der Import ist fehlgeschlagen.",
+                        new Exception(String.join("\n", result.getFehler())));
+                    return;
+                }
+
+                // Vorschau-Dialog anzeigen
+                if (showImportVorschauDialog(result)) {
+                    // Wuensche uebernehmen
+                    aktuelleWuensche = new ArrayList<>(result.getWuensche());
+                    updateWunschInfoPanel();
+                    setStatus("Import erfolgreich: " + result.getWuensche().size() + " Wuensche");
+                }
+            } catch (Exception e) {
+                logger.error("Fehler beim Importieren", e);
+                showError("Import-Fehler", "Die Datei konnte nicht importiert werden.", e);
+            }
+        }
+    }
+
+    private boolean showImportVorschauDialog(ExcelWunschImporter.ImportResult result) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Import-Vorschau");
+        alert.setHeaderText("Wuensche importieren?");
+
+        StringBuilder content = new StringBuilder();
+        content.append(result.getZusammenfassung()).append("\n");
+
+        if (result.hatWarnungen()) {
+            content.append("\nWarnungen:\n");
+            for (String warnung : result.getWarnungen()) {
+                content.append("- ").append(warnung).append("\n");
+            }
+        }
+
+        alert.setContentText(content.toString());
+        alert.getDialogPane().setPrefWidth(500);
+
+        Optional<ButtonType> buttonResult = alert.showAndWait();
+        return buttonResult.isPresent() && buttonResult.get() == ButtonType.OK;
+    }
+
+    @FXML
+    private void onDienstplanExportieren() {
+        if (aktuellerDienstplan == null) {
+            showWarning("Kein Dienstplan", "Es ist kein Dienstplan zum Exportieren vorhanden.");
+            return;
+        }
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Dienstplan exportieren");
+        fileChooser.setInitialFileName(ExcelDienstplanExporter.generateDefaultFileName(aktuellerDienstplan));
+        fileChooser.getExtensionFilters().add(
+            new FileChooser.ExtensionFilter("Excel-Dateien", "*.xlsx"));
+
+        File file = fileChooser.showSaveDialog(kalenderGrid.getScene().getWindow());
+        if (file != null) {
+            try {
+                ExcelDienstplanExporter exporter = new ExcelDienstplanExporter();
+                exporter.exportiereDienstplan(aktuellerDienstplan, verfuegbarePersonen,
+                    aktuelleWunschStatistiken, file.toPath());
+                setStatus("Dienstplan exportiert: " + file.getName());
+                showInfo("Export erfolgreich", "Der Dienstplan wurde erfolgreich exportiert.");
+            } catch (IOException e) {
+                logger.error("Fehler beim Exportieren", e);
+                showError("Export-Fehler", "Der Dienstplan konnte nicht exportiert werden.", e);
+            }
+        }
+    }
+
+    private void updateWunschInfoPanel() {
+        if (wunschInfoPanel == null) return;
+
+        if (aktuelleWuensche.isEmpty()) {
+            wunschInfoPanel.setVisible(false);
+            wunschInfoPanel.setManaged(false);
+        } else {
+            wunschInfoPanel.setVisible(true);
+            wunschInfoPanel.setManaged(true);
+
+            Map<WunschTyp, Long> counts = aktuelleWuensche.stream()
+                .collect(Collectors.groupingBy(MonatsWunsch::getTyp, Collectors.counting()));
+
+            long urlaub = counts.getOrDefault(WunschTyp.URLAUB, 0L);
+            long frei = counts.getOrDefault(WunschTyp.FREIWUNSCH, 0L);
+            long dienst = counts.getOrDefault(WunschTyp.DIENSTWUNSCH, 0L);
+
+            wunschInfoLabel.setText(String.format("Importiert: %d Urlaub, %d Frei-, %d Dienstwuensche",
+                urlaub, frei, dienst));
+        }
+    }
+
+    private void updateWunschStatistikAnzeige() {
+        if (wunscherfuellungPanel == null) return;
+
+        if (aktuelleWunschStatistiken == null || aktuelleWunschStatistiken.isEmpty()) {
+            wunscherfuellungPanel.setVisible(false);
+            wunscherfuellungPanel.setManaged(false);
+            return;
+        }
+
+        wunscherfuellungPanel.setVisible(true);
+        wunscherfuellungPanel.setManaged(true);
+
+        int gesamtFrei = 0, erfuelltFrei = 0;
+        int gesamtDienst = 0, erfuelltDienst = 0;
+
+        for (WunschStatistik stat : aktuelleWunschStatistiken.values()) {
+            gesamtFrei += stat.getAnzahlFreiwuensche();
+            erfuelltFrei += stat.getErfuellteFreiwuensche();
+            gesamtDienst += stat.getAnzahlDienstwuensche();
+            erfuelltDienst += stat.getErfuellteDienstwuensche();
+        }
+
+        freiwunschStatLabel.setText(String.format("%d/%d (%.0f%%)",
+            erfuelltFrei, gesamtFrei, gesamtFrei > 0 ? (double) erfuelltFrei / gesamtFrei * 100 : 100));
+        dienstwunschStatLabel.setText(String.format("%d/%d (%.0f%%)",
+            erfuelltDienst, gesamtDienst, gesamtDienst > 0 ? (double) erfuelltDienst / gesamtDienst * 100 : 100));
+
+        int gesamtWeich = gesamtFrei + gesamtDienst;
+        int erfuelltWeich = erfuelltFrei + erfuelltDienst;
+        double quote = gesamtWeich > 0 ? (double) erfuelltWeich / gesamtWeich * 100 : 100;
+        gesamtQuoteLabel.setText(String.format("%.0f%%", quote));
+    }
+
+    @FXML
+    private void onWunschDetailsAnzeigen() {
+        if (aktuelleWunschStatistiken == null || aktuelleWunschStatistiken.isEmpty()) {
+            showInfo("Keine Statistiken", "Es sind keine Wunschstatistiken vorhanden.");
+            return;
+        }
+
+        StringBuilder details = new StringBuilder();
+        details.append("Wunscherfuellung pro Person:\n\n");
+
+        for (WunschStatistik stat : aktuelleWunschStatistiken.values()) {
+            details.append(stat.getPersonName()).append(":\n");
+            details.append("  Freiwuensche: ").append(stat.getFreiwuenscheZusammenfassung()).append("\n");
+            details.append("  Dienstwuensche: ").append(stat.getDienstwuenscheZusammenfassung()).append("\n");
+            details.append("  Quote: ").append(stat.getErfuellungsquoteAlsProzent()).append("\n\n");
+        }
+
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Wunscherfuellung Details");
+        alert.setHeaderText("Detaillierte Wunscherfuellung");
+
+        TextArea textArea = new TextArea(details.toString());
+        textArea.setEditable(false);
+        textArea.setWrapText(true);
+        textArea.setPrefRowCount(15);
+
+        alert.getDialogPane().setExpandableContent(textArea);
+        alert.getDialogPane().setExpanded(true);
+        alert.showAndWait();
+    }
+
     // Datenklasse für Statistik-Tabelle
     public static class PersonStatistik {
         private final SimpleStringProperty name;
