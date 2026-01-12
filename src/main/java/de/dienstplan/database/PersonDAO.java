@@ -54,15 +54,6 @@ public class PersonDAO {
                 }
             }
             
-            // Abwesenheiten separat speichern
-            if (!person.getAbwesenheiten().isEmpty()) {
-                AbwesenheitDAO abwesenheitDAO = new AbwesenheitDAO();
-                for (Abwesenheit abwesenheit : person.getAbwesenheiten()) {
-                    abwesenheit.setPersonId(person.getId());
-                    abwesenheitDAO.create(abwesenheit);
-                }
-            }
-            
             logger.info("Person erstellt: {}", person.getName());
             return person;
         }
@@ -90,16 +81,11 @@ public Optional<Person> findById(Long id) throws SQLException {
         
         try (ResultSet rs = stmt.executeQuery()) {
             if (rs.next()) {
-                Person person = mapResultSetToPerson(rs);
-                
-                // Abwesenheiten laden
-                loadAbwesenheiten(person);
-                
-                return Optional.of(person);
+                return Optional.of(mapResultSetToPerson(rs));
             }
         }
     }
-    
+
     return Optional.empty();
 }
     /**
@@ -124,19 +110,16 @@ public Optional<Person> findById(Long id) throws SQLException {
             
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    Person person = mapResultSetToPerson(rs);
-                    loadAbwesenheiten(person);
-                    return Optional.of(person);
+                    return Optional.of(mapResultSetToPerson(rs));
                 }
             }
         }
-        
+
         return Optional.empty();
     }
-    
+
     /**
      * Lädt alle Personen aus der Datenbank.
-     * Optimiert mit Batch-Loading für Abwesenheiten (vermeidet N+1 Problem).
      */
     public List<Person> findAll() throws SQLException {
         String sql = """
@@ -153,28 +136,11 @@ public Optional<Person> findById(Long id) throws SQLException {
              ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
-                Person person = mapResultSetToPerson(rs);
-                personen.add(person);
+                personen.add(mapResultSetToPerson(rs));
             }
         }
 
-        // Batch-Load: Alle Abwesenheiten in einer einzigen Query laden
-        if (!personen.isEmpty()) {
-            AbwesenheitDAO abwesenheitDAO = new AbwesenheitDAO();
-            List<Long> personIds = personen.stream()
-                .map(Person::getId)
-                .toList();
-
-            Map<Long, List<Abwesenheit>> abwesenheitenMap = abwesenheitDAO.findByPersonIds(personIds);
-
-            // Abwesenheiten den Personen zuordnen
-            for (Person person : personen) {
-                List<Abwesenheit> abwesenheiten = abwesenheitenMap.getOrDefault(person.getId(), new ArrayList<>());
-                person.setAbwesenheiten(abwesenheiten);
-            }
-        }
-
-        logger.debug("Anzahl geladene Personen: {} (mit Batch-Loading)", personen.size());
+        logger.debug("Anzahl geladene Personen: {}", personen.size());
         return personen;
     }
     
@@ -206,10 +172,7 @@ public Optional<Person> findById(Long id) throws SQLException {
             if (affectedRows == 0) {
                 throw new SQLException("Person nicht gefunden: " + person.getId());
             }
-            
-            // Abwesenheiten aktualisieren (vereinfacht: löschen und neu erstellen)
-            updateAbwesenheiten(person);
-            
+
             logger.info("Person aktualisiert: {}", person.getName());
         }
     }
@@ -284,16 +247,14 @@ public Optional<Person> findById(Long id) throws SQLException {
             
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    Person person = mapResultSetToPerson(rs);
-                    loadAbwesenheiten(person);
-                    personen.add(person);
+                    personen.add(mapResultSetToPerson(rs));
                 }
             }
         }
-        
+
         return personen;
     }
-    
+
     /**
      * Zählt die Anzahl der Personen
      */
@@ -323,26 +284,7 @@ public Optional<Person> findById(Long id) throws SQLException {
         
         return new Person(id, name, anzahlDienste, arbeitsTage, verfuegbareDienstArten);
     }
-    
-    private void loadAbwesenheiten(Person person) throws SQLException {
-        AbwesenheitDAO abwesenheitDAO = new AbwesenheitDAO();
-        List<Abwesenheit> abwesenheiten = abwesenheitDAO.findByPersonId(person.getId());
-        person.setAbwesenheiten(abwesenheiten);
-    }
-    
-    private void updateAbwesenheiten(Person person) throws SQLException {
-        // Bestehende Abwesenheiten löschen
-        AbwesenheitDAO abwesenheitDAO = new AbwesenheitDAO();
-        abwesenheitDAO.deleteByPersonId(person.getId());
-        
-        // Neue Abwesenheiten erstellen
-        for (Abwesenheit abwesenheit : person.getAbwesenheiten()) {
-            abwesenheit.setPersonId(person.getId());
-            abwesenheit.setId(null); // Sicherstellen, dass eine neue ID generiert wird
-            abwesenheitDAO.create(abwesenheit);
-        }
-    }
-    
+
     private String encodeWochentage(EnumSet<Wochentag> wochentage) {
         if (wochentage == null || wochentage.isEmpty()) {
             return "";

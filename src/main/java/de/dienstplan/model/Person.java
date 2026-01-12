@@ -1,9 +1,6 @@
 package de.dienstplan.model;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -15,12 +12,10 @@ public class Person {
     private String name;
     private int anzahlDienste;
     private EnumSet<Wochentag> arbeitsTage;
-    private List<Abwesenheit> abwesenheiten;
     private EnumSet<DienstArt> verfuegbareDienstArten;
     
     // Konstruktoren
     public Person() {
-        this.abwesenheiten = new ArrayList<>();
         this.arbeitsTage = EnumSet.noneOf(Wochentag.class);
         this.verfuegbareDienstArten = EnumSet.noneOf(DienstArt.class);
     }
@@ -80,14 +75,6 @@ public class Person {
         this.arbeitsTage = arbeitsTage != null ? arbeitsTage.clone() : EnumSet.noneOf(Wochentag.class);
     }
     
-    public List<Abwesenheit> getAbwesenheiten() {
-        return new ArrayList<>(abwesenheiten);
-    }
-    
-    public void setAbwesenheiten(List<Abwesenheit> abwesenheiten) {
-        this.abwesenheiten = abwesenheiten != null ? new ArrayList<>(abwesenheiten) : new ArrayList<>();
-    }
-    
     public EnumSet<DienstArt> getVerfuegbareDienstArten() {
         return verfuegbareDienstArten.clone();
     }
@@ -98,16 +85,6 @@ public class Person {
     }
     
     // Helper Methoden
-    public void addAbwesenheit(Abwesenheit abwesenheit) {
-        if (abwesenheit != null) {
-            this.abwesenheiten.add(abwesenheit);
-        }
-    }
-    
-    public void removeAbwesenheit(Abwesenheit abwesenheit) {
-        this.abwesenheiten.remove(abwesenheit);
-    }
-    
     public void addArbeitstag(Wochentag wochentag) {
         if (wochentag != null) {
             this.arbeitsTage.add(wochentag);
@@ -127,17 +104,7 @@ public class Person {
     public void removeDienstArt(DienstArt dienstArt) {
         this.verfuegbareDienstArten.remove(dienstArt);
     }
-    
-    /**
-     * Prüft ob die Person an einem bestimmten Datum verfügbar ist
-     * @param datum Das zu prüfende Datum
-     * @return true wenn verfügbar, false wenn abwesend
-     */
-    public boolean istVerfuegbar(LocalDate datum) {
-        return abwesenheiten.stream()
-            .noneMatch(abwesenheit -> abwesenheit.istAbwesend(datum));
-    }
-    
+
     /**
      * Prüft ob die Person an einem bestimmten Wochentag grundsätzlich arbeitet
      * @param wochentag Der zu prüfende Wochentag
@@ -177,7 +144,6 @@ public class Person {
                 ", anzahlDienste=" + anzahlDienste +
                 ", arbeitsTage=" + arbeitsTage +
                 ", verfuegbareDienstArten=" + verfuegbareDienstArten +
-                ", abwesenheiten=" + abwesenheiten.size() +
                 '}';
     }
 }

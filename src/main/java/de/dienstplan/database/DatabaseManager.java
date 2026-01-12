@@ -87,9 +87,10 @@ public class DatabaseManager {
 
             try {
                 createPersonTable(conn);
-                createAbwesenheitTable(conn);
                 createDienstplanTable(conn);
                 createDienstTable(conn);
+                createMonatsWunschTable(conn);
+                createFairnessHistorieTable(conn);
                 createUpdateTriggers(conn);
                 createAdditionalIndices(conn);
 
@@ -131,35 +132,71 @@ public class DatabaseManager {
     }
 
     /**
-     * Erstellt die Abwesenheit-Tabelle
+     * Erstellt die MonatsWunsch-Tabelle (ersetzt Abwesenheit)
      */
-    private static void createAbwesenheitTable(Connection conn) throws SQLException {
+    private static void createMonatsWunschTable(Connection conn) throws SQLException {
         String sql = """
-            CREATE TABLE IF NOT EXISTS abwesenheit (
+            CREATE TABLE IF NOT EXISTS monats_wunsch (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 person_id INTEGER NOT NULL,
-                start_datum DATE NOT NULL,
-                end_datum DATE NOT NULL,
-                art TEXT NOT NULL,
+                person_name TEXT,
+                monat_jahr TEXT NOT NULL,
+                datum DATE NOT NULL,
+                typ TEXT NOT NULL,
+                erfuellt BOOLEAN DEFAULT NULL,
                 bemerkung TEXT,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (person_id) REFERENCES person(id) ON DELETE CASCADE,
-                CHECK (start_datum <= end_datum)
+                FOREIGN KEY (person_id) REFERENCES person(id) ON DELETE CASCADE
             )
         """;
 
         try (Statement stmt = conn.createStatement()) {
             stmt.execute(sql);
-            logger.debug("Abwesenheit-Tabelle erstellt/überprüft");
+            logger.debug("MonatsWunsch-Tabelle erstellt/überprüft");
         }
 
-        // Index für bessere Performance
-        String indexSql = """
-            CREATE INDEX IF NOT EXISTS idx_abwesenheit_person_datum
-            ON abwesenheit(person_id, start_datum, end_datum)
+        // Indizes für bessere Performance
+        String[] indices = {
+            "CREATE INDEX IF NOT EXISTS idx_monats_wunsch_person ON monats_wunsch(person_id)",
+            "CREATE INDEX IF NOT EXISTS idx_monats_wunsch_monat ON monats_wunsch(monat_jahr)",
+            "CREATE INDEX IF NOT EXISTS idx_monats_wunsch_datum ON monats_wunsch(datum)",
+            "CREATE INDEX IF NOT EXISTS idx_monats_wunsch_typ ON monats_wunsch(typ)"
+        };
+
+        for (String indexSql : indices) {
+            try (Statement stmt = conn.createStatement()) {
+                stmt.execute(indexSql);
+            }
+        }
+    }
+
+    /**
+     * Erstellt die FairnessHistorie-Tabelle
+     */
+    private static void createFairnessHistorieTable(Connection conn) throws SQLException {
+        String sql = """
+            CREATE TABLE IF NOT EXISTS fairness_historie (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                person_id INTEGER NOT NULL,
+                monat_jahr TEXT NOT NULL,
+                freiwuensche_gesamt INTEGER NOT NULL DEFAULT 0,
+                freiwuensche_erfuellt INTEGER NOT NULL DEFAULT 0,
+                dienstwuensche_gesamt INTEGER NOT NULL DEFAULT 0,
+                dienstwuensche_erfuellt INTEGER NOT NULL DEFAULT 0,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (person_id) REFERENCES person(id) ON DELETE CASCADE,
+                UNIQUE(person_id, monat_jahr)
+            )
         """;
 
+        try (Statement stmt = conn.createStatement()) {
+            stmt.execute(sql);
+            logger.debug("FairnessHistorie-Tabelle erstellt/überprüft");
+        }
+
+        // Index für schnelle Abfragen
+        String indexSql = "CREATE INDEX IF NOT EXISTS idx_fairness_person_monat ON fairness_historie(person_id, monat_jahr)";
         try (Statement stmt = conn.createStatement()) {
             stmt.execute(indexSql);
         }
@@ -267,10 +304,10 @@ public class DatabaseManager {
             END
             """,
             """
-            CREATE TRIGGER IF NOT EXISTS update_abwesenheit_timestamp
-            AFTER UPDATE ON abwesenheit
+            CREATE TRIGGER IF NOT EXISTS update_monats_wunsch_timestamp
+            AFTER UPDATE ON monats_wunsch
             BEGIN
-                UPDATE abwesenheit SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id;
+                UPDATE monats_wunsch SET updated_at = CURRENT_TIMESTAMP WHERE id = NEW.id;
             END
             """,
             """
@@ -293,6 +330,14 @@ public class DatabaseManager {
             AFTER UPDATE OF name ON person
             BEGIN
                 UPDATE dienst SET person_name = NEW.name WHERE person_id = NEW.id;
+            END
+            """,
+            // Trigger für Denormalisierung: Person-Name in MonatsWunsch aktualisieren
+            """
+            CREATE TRIGGER IF NOT EXISTS update_monats_wunsch_person_name
+            AFTER UPDATE OF name ON person
+            BEGIN
+                UPDATE monats_wunsch SET person_name = NEW.name WHERE person_id = NEW.id;
             END
             """
         };
@@ -378,7 +423,7 @@ public class DatabaseManager {
     public static void dropAllTables() throws SQLException {
         logger.warn("Alle Tabellen werden gelöscht!");
 
-        String[] tables = {"dienst", "abwesenheit", "dienstplan", "person"};
+        String[] tables = {"dienst", "monats_wunsch", "fairness_historie", "dienstplan", "person"};
 
         try (Connection conn = createConnection()) {
             conn.setAutoCommit(false);

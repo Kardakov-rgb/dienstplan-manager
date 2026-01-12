@@ -302,7 +302,7 @@ public class HauptfensterController implements Initializable {
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
         confirm.setTitle("Testdaten erstellen");
         confirm.setHeaderText("Möchten Sie Testdaten erstellen?");
-        confirm.setContentText("Es werden Beispiel-Personen mit Abwesenheiten erstellt.");
+        confirm.setContentText("Es werden Beispiel-Personen erstellt.");
         
         if (confirm.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK) {
             try {
@@ -340,13 +340,13 @@ public class HauptfensterController implements Initializable {
             📋 Verwendung:
             1. Personen in der Personenverwaltung anlegen
             2. Arbeitszeiten und Dienstarten konfigurieren
-            3. Abwesenheiten eintragen
+            3. Monatswünsche per Excel importieren
             4. Dienstplan automatisch generieren lassen
             5. Manuell nachbearbeiten falls nötig
-            
+
             💡 Tipps:
             • Mindestens 3-4 Personen für optimale Verteilung
-            • Abwesenheiten im Voraus eintragen
+            • Excel-Vorlage für Wünsche herunterladen
             • Verschiedene Dienstarten pro Person aktivieren
             
             🔧 Bei Problemen:
@@ -405,7 +405,7 @@ public class HauptfensterController implements Initializable {
             
             ⚖️ Features:
             • Faire Dienstverteilung
-            • Abwesenheits-Management
+            • Excel-Import für Wünsche
             • Automatische Konfliktlösung
             • Manuelle Nachbearbeitung
             
@@ -535,25 +535,11 @@ public class HauptfensterController implements Initializable {
             aufgabenListe.add("💡 Mindestens 3-4 Personen empfohlen");
         }
         
-        try {
-            // Weitere Prüfungen
-            List<Person> personen = personDAO.findAll();
-            long personenOhneAbwesenheiten = personen.stream()
-                .filter(p -> p.getAbwesenheiten().isEmpty())
-                .count();
-            
-            if (personenOhneAbwesenheiten > 0) {
-                aufgabenListe.add("📅 " + personenOhneAbwesenheiten + " Person(en) ohne Abwesenheiten");
-            }
-            
-            if (aufgabenListe.isEmpty()) {
-                aufgabenListe.add("✅ System bereit für Dienstplan-Generierung");
-                aufgabenListe.add("🚀 Alle Grunddaten vollständig");
-            }
-            
-        } catch (SQLException e) {
-            aufgabenListe.add("❌ Fehler beim Laden der Aufgaben");
-            logger.warn("Fehler beim Laden der Aufgaben", e);
+        // TODO: MonatsWunsch-Prüfung für aktuellen Monat hinzufügen (Phase 3)
+
+        if (aufgabenListe.isEmpty()) {
+            aufgabenListe.add("✅ System bereit für Dienstplan-Generierung");
+            aufgabenListe.add("🚀 Alle Grunddaten vollständig");
         }
     }
     

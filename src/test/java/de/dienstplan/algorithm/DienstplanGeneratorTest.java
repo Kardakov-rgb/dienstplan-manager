@@ -90,33 +90,10 @@ class DienstplanGeneratorTest {
     @DisplayName("Constraint-Prüfung")
     class ConstraintTests {
 
-        @Test
-        @DisplayName("Weist keine Person am Abwesenheitstag zu")
-        void weistNichtZuBeiAbwesenheit() {
-            // Anna hat Urlaub vom 10.-15. Juni
-            Person anna = personen.get(0);
-            anna.addAbwesenheit(new Abwesenheit(
-                LocalDate.of(2024, 6, 10),
-                LocalDate.of(2024, 6, 15),
-                AbwesenheitsArt.URLAUB
-            ));
-
-            DienstplanGenerator generator = new DienstplanGenerator(personen, testMonat);
-            DienstplanGenerator.DienstplanGenerierungResult result = generator.generiereDienstplan();
-
-            Dienstplan dienstplan = result.getDienstplan();
-
-            // Prüfe, dass Anna keine Dienste während ihres Urlaubs hat
-            for (Dienst dienst : dienstplan.getDienste()) {
-                if (dienst.getPersonId() != null && dienst.getPersonId().equals(1L)) {
-                    LocalDate datum = dienst.getDatum();
-                    boolean istImUrlaub = !datum.isBefore(LocalDate.of(2024, 6, 10))
-                                       && !datum.isAfter(LocalDate.of(2024, 6, 15));
-                    assertFalse(istImUrlaub,
-                        "Anna sollte am " + datum + " keinen Dienst haben (Urlaub)");
-                }
-            }
-        }
+        // TODO: Test für Urlaub mit MonatsWunsch in Phase 3 implementieren
+        // @Test
+        // @DisplayName("Weist keine Person am Urlaubstag zu")
+        // void weistNichtZuBeiUrlaub() { ... }
 
         @Test
         @DisplayName("Weist keine Person am falschen Wochentag zu")

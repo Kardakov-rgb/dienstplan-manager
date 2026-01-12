@@ -261,12 +261,8 @@ public class DienstplanGenerator {
             return false;
         }
 
-        // 3. Person darf nicht abwesend sein
-        if (!person.istVerfuegbar(slot.datum)) {
-            return false;
-        }
-
-        // 4. Person darf nicht schon einen Dienst an diesem Tag haben
+        // 3. Person darf nicht schon einen Dienst an diesem Tag haben
+        // TODO: MonatsWunsch (Urlaub) Prüfung wird in Phase 3 implementiert
         if (personDienste.get(person.getId()).contains(slot.datum)) {
             return false;
         }
@@ -286,26 +282,15 @@ public class DienstplanGenerator {
             return false;
         }
 
-        // Harte Regel: Nach Abwesenheit → erster Tag frei
-        if (istErsterTagNachAbwesenheit(person, slot.datum)) {
-            return false;
-        }
+        // TODO: Nach Urlaub → erster Tag frei (wird in Phase 3 mit MonatsWunsch implementiert)
 
-        // NEUE Regel: Maximale Dienstanzahl pro Person prüfen
+        // Maximale Dienstanzahl pro Person prüfen
         int maxDienste = person.getAnzahlDienste();
         if (maxDienste > 0 && personsDienste.size() >= maxDienste) {
             return false;
         }
 
         return true;
-    }
-
-    /**
-     * Prüft ob es der erste Tag nach einer Abwesenheit ist
-     */
-    private boolean istErsterTagNachAbwesenheit(Person person, LocalDate datum) {
-        return person.getAbwesenheiten().stream()
-                .anyMatch(abw -> abw.getEndDatum().equals(datum.minusDays(1)));
     }
 
     /**

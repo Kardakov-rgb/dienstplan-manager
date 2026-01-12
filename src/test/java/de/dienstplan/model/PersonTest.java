@@ -5,7 +5,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDate;
 import java.util.EnumSet;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -77,46 +76,8 @@ class PersonTest {
         }
     }
 
-    @Nested
-    @DisplayName("Verfügbarkeitsprüfung")
-    class VerfuegbarkeitTests {
-
-        @Test
-        @DisplayName("Person ist verfügbar ohne Abwesenheiten")
-        void istVerfuegbarOhneAbwesenheiten() {
-            LocalDate datum = LocalDate.of(2024, 6, 15);
-            assertTrue(person.istVerfuegbar(datum));
-        }
-
-        @Test
-        @DisplayName("Person ist nicht verfügbar während Abwesenheit")
-        void istNichtVerfuegbarWaehrendAbwesenheit() {
-            Abwesenheit urlaub = new Abwesenheit(
-                LocalDate.of(2024, 6, 10),
-                LocalDate.of(2024, 6, 20),
-                AbwesenheitsArt.URLAUB
-            );
-            person.addAbwesenheit(urlaub);
-
-            assertFalse(person.istVerfuegbar(LocalDate.of(2024, 6, 15)));
-            assertTrue(person.istVerfuegbar(LocalDate.of(2024, 6, 9)));
-            assertTrue(person.istVerfuegbar(LocalDate.of(2024, 6, 21)));
-        }
-
-        @Test
-        @DisplayName("Person ist nicht verfügbar am Start- und Enddatum")
-        void istNichtVerfuegbarAmStartUndEnde() {
-            Abwesenheit urlaub = new Abwesenheit(
-                LocalDate.of(2024, 6, 10),
-                LocalDate.of(2024, 6, 20),
-                AbwesenheitsArt.URLAUB
-            );
-            person.addAbwesenheit(urlaub);
-
-            assertFalse(person.istVerfuegbar(LocalDate.of(2024, 6, 10)));
-            assertFalse(person.istVerfuegbar(LocalDate.of(2024, 6, 20)));
-        }
-    }
+    // TODO: Verfügbarkeitstests mit MonatsWunsch in Phase 3 implementieren
+    // Abwesenheiten wurden durch MonatsWunsch (Urlaub) ersetzt
 
     @Nested
     @DisplayName("Arbeits- und Dienstarten-Prüfung")
