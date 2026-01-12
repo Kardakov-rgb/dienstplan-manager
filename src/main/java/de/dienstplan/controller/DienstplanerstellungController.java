@@ -314,7 +314,7 @@ public class DienstplanerstellungController implements Initializable {
                 generator.setProgressCallback(progress -> {
                     Platform.runLater(() -> {
                         updateProgress(progress, 1.0);
-                        zuweisungsgradBar.setProgress(progress);
+                        // Nicht manuell setProgress() aufrufen - das Binding macht das
                         setStatus(String.format("Generiere Dienstplan... %.0f%%", progress * 100));
                     });
                 });
@@ -336,12 +336,15 @@ public class DienstplanerstellungController implements Initializable {
                     logger.error("Generierung fehlgeschlagen", getException());
                     setStatus("Generierung fehlgeschlagen: " + getException().getMessage());
                     generiereButton.setDisable(false);
+                    // Binding aufheben bevor manuell gesetzt wird
+                    zuweisungsgradBar.progressProperty().unbind();
                     zuweisungsgradBar.setProgress(0);
                 });
             }
         };
 
-        // Progress-Property binden
+        // Progress-Property binden (wird in onGenerierungAbgeschlossen oder failed wieder aufgehoben)
+        zuweisungsgradBar.progressProperty().unbind(); // Sicherstellen dass kein altes Binding existiert
         zuweisungsgradBar.progressProperty().bind(task.progressProperty());
 
         Thread generierungsThread = new Thread(task);
@@ -351,6 +354,9 @@ public class DienstplanerstellungController implements Initializable {
     }
     
     private void onGenerierungAbgeschlossen(DienstplanGenerator.DienstplanGenerierungResult result) {
+        // Binding aufheben damit updateStatistiken() funktioniert
+        zuweisungsgradBar.progressProperty().unbind();
+
         try {
             aktuellerDienstplan = result.getDienstplan();
 
@@ -840,6 +846,10 @@ public class DienstplanerstellungController implements Initializable {
         gesamtDiensteLabel.setText(String.valueOf(gesamt));
         zugewiesenLabel.setText(String.valueOf(zugewiesen));
         offenLabel.setText(String.valueOf(offen));
+        // Sicherstellen dass kein Binding aktiv ist
+        if (zuweisungsgradBar.progressProperty().isBound()) {
+            zuweisungsgradBar.progressProperty().unbind();
+        }
         zuweisungsgradBar.setProgress(zuweisungsgrad);
         
         statistikLabel.setText(String.format("Zuweisungsgrad: %.1f%% (%d/%d)", 
