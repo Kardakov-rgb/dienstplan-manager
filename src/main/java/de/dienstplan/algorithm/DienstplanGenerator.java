@@ -14,15 +14,17 @@ import java.util.stream.Collectors;
  * Optimierter Backtracking-Algorithmus für automatische Dienstplanerstellung.
  *
  * Prioritäten (in Reihenfolge):
- * 1. Harte Regeln (niemals brechen)
- * 2. Maximale Abstände zwischen Diensten pro Person
- * 3. Gleichmäßige Dienstanzahl pro Person
- * 4. Gleichmäßige Dienstarten-Verteilung
+ * 1. Harte Regeln (niemals brechen) - inkl. Urlaub
+ * 2. Weiche Wünsche (Freiwunsch/Dienstwunsch) mit Fairness-Berücksichtigung
+ * 3. Maximale Abstände zwischen Diensten pro Person
+ * 4. Gleichmäßige Dienstanzahl pro Person
+ * 5. Gleichmäßige Dienstarten-Verteilung
  *
  * Optimierungen:
  * - Constraint Propagation vor dem Backtracking
  * - Most Constrained Variable (MCV) Heuristik
  * - Berücksichtigung von anzahlDienste pro Person
+ * - Fairness-basierte Priorisierung bei weichen Wünschen
  */
 public class DienstplanGenerator {
 
@@ -33,10 +35,18 @@ public class DienstplanGenerator {
     private static final int MAX_ABSTAND_TAGE = 30;
     private static final double EPSILON = 0.1;
 
+    // Bonus/Malus für Wunscherfüllung
+    private static final double FREIWUNSCH_MALUS = 100.0;  // Abzug wenn Freiwunsch ignoriert
+    private static final double DIENSTWUNSCH_BONUS = 50.0; // Bonus wenn Dienstwunsch erfüllt
+
     // Konfiguration
     private final List<Person> verfuegbarePersonen;
     private final YearMonth zielmonat;
     private final Map<DienstArt, Set<Wochentag>> dienstartWochentage;
+
+    // MonatsWünsche (gruppiert nach Person und Datum)
+    private Map<Long, Map<LocalDate, MonatsWunsch>> wuenscheNachPersonUndDatum;
+    private Map<Long, FairnessScore> fairnessScores;
 
     // Arbeitsstrukturen
     private List<DienstSlot> dienstSlots;
@@ -47,15 +57,38 @@ public class DienstplanGenerator {
     private Consumer<Double> progressCallback;
 
     public DienstplanGenerator(List<Person> personen, YearMonth monat) {
+        this(personen, monat, new ArrayList<>(), new HashMap<>());
+    }
+
+    /**
+     * Konstruktor mit MonatsWünschen und Fairness-Daten.
+     *
+     * @param personen Verfügbare Personen
+     * @param monat Zielmonat
+     * @param monatsWuensche Liste der MonatsWünsche für den Monat
+     * @param fairnessScores Map von PersonId zu FairnessScore (historische Erfüllung)
+     */
+    public DienstplanGenerator(List<Person> personen, YearMonth monat,
+                                List<MonatsWunsch> monatsWuensche,
+                                Map<Long, FairnessScore> fairnessScores) {
         // Defensive Kopie für Thread-Safety
         this.verfuegbarePersonen = new ArrayList<>(personen);
         this.zielmonat = monat;
         this.dienstartWochentage = initializeDienstartWochentage();
         this.personDienste = new HashMap<>();
         this.warnungen = new LinkedHashSet<>();
+        this.fairnessScores = new HashMap<>(fairnessScores);
 
-        logger.info("DienstplanGenerator initialisiert für {} mit {} Personen",
-                   monat, personen.size());
+        // MonatsWünsche indizieren für schnellen Zugriff
+        this.wuenscheNachPersonUndDatum = new HashMap<>();
+        for (MonatsWunsch wunsch : monatsWuensche) {
+            wuenscheNachPersonUndDatum
+                .computeIfAbsent(wunsch.getPersonId(), k -> new HashMap<>())
+                .put(wunsch.getDatum(), wunsch);
+        }
+
+        logger.info("DienstplanGenerator initialisiert für {} mit {} Personen und {} Wünschen",
+                   monat, personen.size(), monatsWuensche.size());
     }
 
     /**
@@ -90,10 +123,15 @@ public class DienstplanGenerator {
             // 6. Ergebnisse zusammenstellen
             Dienstplan dienstplan = createDienstplanFromSlots();
 
+            // 7. Wunschstatistiken berechnen
+            Map<Long, WunschStatistik> statistiken = berechneWunschStatistiken();
+
             logger.info("Dienstplan-Generierung beendet. Erfolg: {}, Warnungen: {}",
                        erfolg, warnungen.size());
 
-            return new DienstplanGenerierungResult(dienstplan, warnungen, erfolg);
+            DienstplanGenerierungResult result = new DienstplanGenerierungResult(dienstplan, warnungen, erfolg);
+            result.setWunschStatistiken(statistiken);
+            return result;
 
         } catch (Exception e) {
             logger.error("Fehler bei der Dienstplan-Generierung", e);
@@ -262,12 +300,39 @@ public class DienstplanGenerator {
         }
 
         // 3. Person darf nicht schon einen Dienst an diesem Tag haben
-        // TODO: MonatsWunsch (Urlaub) Prüfung wird in Phase 3 implementiert
         if (personDienste.get(person.getId()).contains(slot.datum)) {
             return false;
         }
 
+        // 4. HARTER CONSTRAINT: Person darf nicht an Urlaubstagen arbeiten
+        if (hatUrlaubAm(person.getId(), slot.datum)) {
+            return false;
+        }
+
         return true;
+    }
+
+    /**
+     * Prüft ob eine Person an einem Datum Urlaub hat.
+     */
+    private boolean hatUrlaubAm(Long personId, LocalDate datum) {
+        Map<LocalDate, MonatsWunsch> personWuensche = wuenscheNachPersonUndDatum.get(personId);
+        if (personWuensche == null) {
+            return false;
+        }
+        MonatsWunsch wunsch = personWuensche.get(datum);
+        return wunsch != null && wunsch.isUrlaub();
+    }
+
+    /**
+     * Holt den MonatsWunsch einer Person für ein Datum (falls vorhanden).
+     */
+    private Optional<MonatsWunsch> getWunschFuer(Long personId, LocalDate datum) {
+        Map<LocalDate, MonatsWunsch> personWuensche = wuenscheNachPersonUndDatum.get(personId);
+        if (personWuensche == null) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(personWuensche.get(datum));
     }
 
     /**
@@ -282,7 +347,10 @@ public class DienstplanGenerator {
             return false;
         }
 
-        // TODO: Nach Urlaub → erster Tag frei (wird in Phase 3 mit MonatsWunsch implementiert)
+        // Harte Regel: Nach Urlaub → erster Tag frei
+        if (hatUrlaubAm(person.getId(), vortag)) {
+            return false;
+        }
 
         // Maximale Dienstanzahl pro Person prüfen
         int maxDienste = person.getAnzahlDienste();
@@ -297,35 +365,98 @@ public class DienstplanGenerator {
      * Vergleichsfunktion für optimale Kandidatenreihenfolge
      */
     private int comparePersonenFuerSlot(Person p1, Person p2, DienstSlot slot) {
-        // 1. Priorität: Personen die noch unter ihrem Soll sind
+        // 1. Priorität: Wunsch-basierte Bewertung (Dienstwunsch positiv, Freiwunsch negativ)
+        double wunschScore1 = berechneWunschScore(p1, slot);
+        double wunschScore2 = berechneWunschScore(p2, slot);
+        if (Math.abs(wunschScore1 - wunschScore2) > EPSILON) {
+            return Double.compare(wunschScore2, wunschScore1); // Höherer Score = besser
+        }
+
+        // 2. Priorität: Fairness-basierte Priorisierung (benachteiligte Personen bevorzugen)
+        int fairnessVergleich = compareFairness(p1, p2);
+        if (fairnessVergleich != 0) {
+            return fairnessVergleich;
+        }
+
+        // 3. Priorität: Personen die noch unter ihrem Soll sind
         int sollVergleich = compareSollErfuellung(p1, p2);
         if (sollVergleich != 0) {
             return sollVergleich;
         }
 
-        // 2. Priorität: Abstand-Score (größere Abstände bevorzugen)
+        // 4. Priorität: Abstand-Score (größere Abstände bevorzugen)
         double abstandScore1 = berechneAbstandScore(p1, slot.datum);
         double abstandScore2 = berechneAbstandScore(p2, slot.datum);
         if (Math.abs(abstandScore1 - abstandScore2) > EPSILON) {
             return Double.compare(abstandScore2, abstandScore1); // Höherer Score = besser
         }
 
-        // 3. Priorität: Weniger Dienste bisher (gleichmäßige Verteilung)
+        // 5. Priorität: Weniger Dienste bisher (gleichmäßige Verteilung)
         int anzahlDienste1 = personDienste.get(p1.getId()).size();
         int anzahlDienste2 = personDienste.get(p2.getId()).size();
         if (anzahlDienste1 != anzahlDienste2) {
             return Integer.compare(anzahlDienste1, anzahlDienste2);
         }
 
-        // 4. Priorität: Dienstarten-Balance
+        // 6. Priorität: Dienstarten-Balance
         int dienstartBalance1 = berechneDienstartBalance(p1, slot.dienstArt);
         int dienstartBalance2 = berechneDienstartBalance(p2, slot.dienstArt);
         if (dienstartBalance1 != dienstartBalance2) {
             return Integer.compare(dienstartBalance1, dienstartBalance2);
         }
 
-        // 5. Fallback: Alphabetisch nach Name (für Determinismus)
+        // 7. Fallback: Alphabetisch nach Name (für Determinismus)
         return p1.getName().compareTo(p2.getName());
+    }
+
+    /**
+     * Berechnet einen Score basierend auf Wünschen.
+     * Positiver Score = Person sollte bevorzugt werden
+     * Negativer Score = Person sollte vermieden werden
+     */
+    private double berechneWunschScore(Person person, DienstSlot slot) {
+        Optional<MonatsWunsch> wunschOpt = getWunschFuer(person.getId(), slot.datum);
+        if (wunschOpt.isEmpty()) {
+            return 0.0; // Kein Wunsch = neutral
+        }
+
+        MonatsWunsch wunsch = wunschOpt.get();
+
+        // FREIWUNSCH: Person möchte NICHT arbeiten → negativer Score
+        if (wunsch.isFreiwunsch()) {
+            return -FREIWUNSCH_MALUS;
+        }
+
+        // DIENSTWUNSCH: Person möchte 24h-Dienst → positiver Score wenn 24h-Slot
+        if (wunsch.isDienstwunsch() && slot.dienstArt == DienstArt.DIENST_24H) {
+            return DIENSTWUNSCH_BONUS;
+        }
+
+        return 0.0;
+    }
+
+    /**
+     * Vergleicht zwei Personen nach ihrer historischen Fairness.
+     * Personen mit niedrigerer Erfüllungsquote werden bevorzugt.
+     */
+    private int compareFairness(Person p1, Person p2) {
+        FairnessScore score1 = fairnessScores.get(p1.getId());
+        FairnessScore score2 = fairnessScores.get(p2.getId());
+
+        // Wenn keine Fairness-Daten vorhanden, gleich behandeln
+        if (score1 == null && score2 == null) {
+            return 0;
+        }
+        if (score1 == null) {
+            return 1; // p2 hat Daten, p1 nicht → p1 nach hinten
+        }
+        if (score2 == null) {
+            return -1; // p1 hat Daten, p2 nicht → p1 nach vorne
+        }
+
+        // Niedrigere Erfüllung = höhere Priorität
+        return Double.compare(score1.getDurchschnittlicheErfuellung(),
+                              score2.getDurchschnittlicheErfuellung());
     }
 
     /**
@@ -503,12 +634,70 @@ public class DienstplanGenerator {
     }
 
     /**
+     * Berechnet Wunsch-Erfüllungsstatistiken nach der Generierung.
+     */
+    public Map<Long, WunschStatistik> berechneWunschStatistiken() {
+        Map<Long, WunschStatistik> statistiken = new HashMap<>();
+
+        // Initialisiere Statistiken für alle Personen mit Wünschen
+        for (Map.Entry<Long, Map<LocalDate, MonatsWunsch>> entry : wuenscheNachPersonUndDatum.entrySet()) {
+            Long personId = entry.getKey();
+            Map<LocalDate, MonatsWunsch> personWuensche = entry.getValue();
+
+            // Finde Person
+            Person person = verfuegbarePersonen.stream()
+                .filter(p -> p.getId().equals(personId))
+                .findFirst()
+                .orElse(null);
+
+            String personName = person != null ? person.getName() : "Unbekannt";
+            WunschStatistik stat = new WunschStatistik(personId, personName, zielmonat);
+
+            // Dienste der Person sammeln
+            Set<LocalDate> dienstTage = dienstSlots.stream()
+                .filter(slot -> slot.zugewiesenePerson != null &&
+                               slot.zugewiesenePerson.getId().equals(personId))
+                .map(slot -> slot.datum)
+                .collect(Collectors.toSet());
+
+            // Wünsche auswerten
+            for (MonatsWunsch wunsch : personWuensche.values()) {
+                boolean hatDienstAnDemTag = dienstTage.contains(wunsch.getDatum());
+
+                if (wunsch.isUrlaub()) {
+                    stat.incrementUrlaub();
+                    // Urlaub wird immer erfüllt (harter Constraint)
+                } else if (wunsch.isFreiwunsch()) {
+                    // Freiwunsch erfüllt = kein Dienst an dem Tag
+                    boolean erfuellt = !hatDienstAnDemTag;
+                    stat.incrementFreiwunsch(erfuellt);
+                    wunsch.setErfuellt(erfuellt);
+                } else if (wunsch.isDienstwunsch()) {
+                    // Dienstwunsch erfüllt = 24h-Dienst an dem Tag
+                    boolean hat24hDienst = dienstSlots.stream()
+                        .anyMatch(slot -> slot.datum.equals(wunsch.getDatum()) &&
+                                         slot.dienstArt == DienstArt.DIENST_24H &&
+                                         slot.zugewiesenePerson != null &&
+                                         slot.zugewiesenePerson.getId().equals(personId));
+                    stat.incrementDienstwunsch(hat24hDienst);
+                    wunsch.setErfuellt(hat24hDienst);
+                }
+            }
+
+            statistiken.put(personId, stat);
+        }
+
+        return statistiken;
+    }
+
+    /**
      * Ergebnis der Dienstplan-Generierung
      */
     public static class DienstplanGenerierungResult {
         private final Dienstplan dienstplan;
         private final Set<String> warnungen;
         private final boolean erfolgreich;
+        private Map<Long, WunschStatistik> wunschStatistiken;
 
         public DienstplanGenerierungResult(Dienstplan dienstplan, Set<String> warnungen, boolean erfolgreich) {
             this.dienstplan = dienstplan;
@@ -521,6 +710,11 @@ public class DienstplanGenerator {
         public boolean istErfolgreich() { return erfolgreich; }
         public boolean hatWarnungen() { return !warnungen.isEmpty(); }
 
+        public Map<Long, WunschStatistik> getWunschStatistiken() { return wunschStatistiken; }
+        public void setWunschStatistiken(Map<Long, WunschStatistik> wunschStatistiken) {
+            this.wunschStatistiken = wunschStatistiken;
+        }
+
         public String getZusammenfassung() {
             StringBuilder sb = new StringBuilder();
             sb.append("Generierung: ").append(erfolgreich ? "Erfolgreich" : "Fehlgeschlagen");
@@ -530,6 +724,17 @@ public class DienstplanGenerator {
             }
             if (hatWarnungen()) {
                 sb.append(", Warnungen: ").append(warnungen.size());
+            }
+            if (wunschStatistiken != null && !wunschStatistiken.isEmpty()) {
+                int gesamtWuensche = wunschStatistiken.values().stream()
+                    .mapToInt(WunschStatistik::getAnzahlWeicheWuensche).sum();
+                int erfuellteWuensche = wunschStatistiken.values().stream()
+                    .mapToInt(WunschStatistik::getErfuellteWeicheWuensche).sum();
+                if (gesamtWuensche > 0) {
+                    double quote = (double) erfuellteWuensche / gesamtWuensche * 100;
+                    sb.append(String.format(", Wunscherfüllung: %.0f%% (%d/%d)",
+                              quote, erfuellteWuensche, gesamtWuensche));
+                }
             }
             return sb.toString();
         }
