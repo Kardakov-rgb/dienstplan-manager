@@ -50,7 +50,7 @@ public class Main extends Application {
 
             // Window-Close Event
             primaryStage.setOnCloseRequest(e -> {
-                logger.info("Anwendung wird beendet...");
+                logger.info("Anwendung wird beendet..." );
                 if (hauptfensterController != null) {
                     hauptfensterController.shutdown();
                 }
