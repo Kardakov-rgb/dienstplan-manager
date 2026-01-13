@@ -85,7 +85,7 @@ public class DienstplanerstellungController implements Initializable {
     @FXML private TableColumn<PersonStatistik, Integer> personAnzahlColumn;
     @FXML private TableColumn<PersonStatistik, Integer> person24hColumn;
     @FXML private TableColumn<PersonStatistik, Integer> personVistenColumn;
-    @FXML private TableColumn<PersonStatistik, Integer> personSpaetColumn;
+    @FXML private TableColumn<PersonStatistik, Integer> personDaVinciColumn;
 
     // FXML Controls - Wunsch-Info und Statistik
     @FXML private HBox wunschInfoPanel;
@@ -260,7 +260,7 @@ public class DienstplanerstellungController implements Initializable {
         personAnzahlColumn.setCellValueFactory(new PropertyValueFactory<>("gesamtDienste"));
         person24hColumn.setCellValueFactory(new PropertyValueFactory<>("dienst24h"));
         personVistenColumn.setCellValueFactory(new PropertyValueFactory<>("visten"));
-        personSpaetColumn.setCellValueFactory(new PropertyValueFactory<>("spaetdienst"));
+        personDaVinciColumn.setCellValueFactory(new PropertyValueFactory<>("davinci"));
         
         personStatistikTabelle.setItems(personStatistikListe);
     }
@@ -791,8 +791,8 @@ public class DienstplanerstellungController implements Initializable {
                 case VISTEN:
                     label.setStyle(label.getStyle() + "; -fx-background-color: #E8F5E8; -fx-text-fill: #388E3C;");
                     break;
-                case SPAET:
-                    label.setStyle(label.getStyle() + "; -fx-background-color: #FFF3E0; -fx-text-fill: #F57C00;");
+                case DAVINCI:
+                    label.setStyle(label.getStyle() + "; -fx-background-color: #F3E5F5; -fx-text-fill: #7B1FA2;");
                     break;
             }
             
@@ -912,8 +912,8 @@ public class DienstplanerstellungController implements Initializable {
                         case VISTEN:
                             stats.visten.set(stats.visten.get() + 1);
                             break;
-                        case SPAET:
-                            stats.spaetdienst.set(stats.spaetdienst.get() + 1);
+                        case DAVINCI:
+                            stats.davinci.set(stats.davinci.get() + 1);
                             break;
                     }
                 }
@@ -1199,17 +1199,17 @@ personStatistikListe.sort((a, b) -> Integer.compare(b.gesamtDienste.get(), a.ges
         private final SimpleIntegerProperty gesamtDienste = new SimpleIntegerProperty(0);
         private final SimpleIntegerProperty dienst24h = new SimpleIntegerProperty(0);
         private final SimpleIntegerProperty visten = new SimpleIntegerProperty(0);
-        private final SimpleIntegerProperty spaetdienst = new SimpleIntegerProperty(0);
-        
+        private final SimpleIntegerProperty davinci = new SimpleIntegerProperty(0);
+
         public PersonStatistik(String name) {
             this.name = new SimpleStringProperty(name);
         }
-        
+
         // Getters für TableView
         public String getName() { return name.get(); }
         public int getGesamtDienste() { return gesamtDienste.get(); }
         public int getDienst24h() { return dienst24h.get(); }
         public int getVisten() { return visten.get(); }
-        public int getSpaetdienst() { return spaetdienst.get(); }
+        public int getDavinci() { return davinci.get(); }
     }
 }

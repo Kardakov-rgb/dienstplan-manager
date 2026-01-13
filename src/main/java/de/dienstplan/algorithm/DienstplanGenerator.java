@@ -39,6 +39,11 @@ public class DienstplanGenerator {
     private static final double FREIWUNSCH_MALUS = 100.0;  // Abzug wenn Freiwunsch ignoriert
     private static final double DIENSTWUNSCH_BONUS = 50.0; // Bonus wenn Dienstwunsch erfüllt
 
+    // DaVinci-Regeln
+    private static final double DAVINCI_SAMSTAG_MALUS = 80.0;  // Malus wenn Samstag nach DaVinci
+    private static final double DAVINCI_MEHRFACH_MALUS = 70.0; // Malus wenn >1 DaVinci im Monat
+    private static final int DAVINCI_MAX_PRO_MONAT = 1;        // Max. DaVinci-Dienste pro Person/Monat
+
     // Konfiguration
     private final List<Person> verfuegbarePersonen;
     private final YearMonth zielmonat;
@@ -372,40 +377,47 @@ public class DienstplanGenerator {
             return Double.compare(wunschScore2, wunschScore1); // Höherer Score = besser
         }
 
-        // 2. Priorität: Fairness-basierte Priorisierung (benachteiligte Personen bevorzugen)
+        // 2. Priorität: DaVinci-Regeln (Samstag nach DaVinci vermeiden, max. 1x pro Monat)
+        double davinciScore1 = berechneDaVinciScore(p1, slot);
+        double davinciScore2 = berechneDaVinciScore(p2, slot);
+        if (Math.abs(davinciScore1 - davinciScore2) > EPSILON) {
+            return Double.compare(davinciScore2, davinciScore1); // Höherer Score = besser
+        }
+
+        // 3. Priorität: Fairness-basierte Priorisierung (benachteiligte Personen bevorzugen)
         int fairnessVergleich = compareFairness(p1, p2);
         if (fairnessVergleich != 0) {
             return fairnessVergleich;
         }
 
-        // 3. Priorität: Personen die noch unter ihrem Soll sind
+        // 4. Priorität: Personen die noch unter ihrem Soll sind
         int sollVergleich = compareSollErfuellung(p1, p2);
         if (sollVergleich != 0) {
             return sollVergleich;
         }
 
-        // 4. Priorität: Abstand-Score (größere Abstände bevorzugen)
+        // 5. Priorität: Abstand-Score (größere Abstände bevorzugen)
         double abstandScore1 = berechneAbstandScore(p1, slot.datum);
         double abstandScore2 = berechneAbstandScore(p2, slot.datum);
         if (Math.abs(abstandScore1 - abstandScore2) > EPSILON) {
             return Double.compare(abstandScore2, abstandScore1); // Höherer Score = besser
         }
 
-        // 5. Priorität: Weniger Dienste bisher (gleichmäßige Verteilung)
+        // 6. Priorität: Weniger Dienste bisher (gleichmäßige Verteilung)
         int anzahlDienste1 = personDienste.get(p1.getId()).size();
         int anzahlDienste2 = personDienste.get(p2.getId()).size();
         if (anzahlDienste1 != anzahlDienste2) {
             return Integer.compare(anzahlDienste1, anzahlDienste2);
         }
 
-        // 6. Priorität: Dienstarten-Balance
+        // 7. Priorität: Dienstarten-Balance
         int dienstartBalance1 = berechneDienstartBalance(p1, slot.dienstArt);
         int dienstartBalance2 = berechneDienstartBalance(p2, slot.dienstArt);
         if (dienstartBalance1 != dienstartBalance2) {
             return Integer.compare(dienstartBalance1, dienstartBalance2);
         }
 
-        // 7. Fallback: Alphabetisch nach Name (für Determinismus)
+        // 8. Fallback: Alphabetisch nach Name (für Determinismus)
         return p1.getName().compareTo(p2.getName());
     }
 
@@ -526,6 +538,39 @@ public class DienstplanGenerator {
     }
 
     /**
+     * Berechnet DaVinci-spezifischen Score.
+     * Weiche Regeln:
+     * - Nach DaVinci (Freitag) sollte Samstag frei sein
+     * - Max. 1 DaVinci pro Person pro Monat
+     */
+    private double berechneDaVinciScore(Person person, DienstSlot slot) {
+        double score = 0.0;
+
+        // Regel 1: Wenn Samstag und Person hatte am Freitag davor DaVinci → Malus
+        Wochentag wochentag = Wochentag.fromLocalDate(slot.datum);
+        if (wochentag == Wochentag.SAMSTAG) {
+            LocalDate freitagDavor = slot.datum.minusDays(1);
+            boolean hatteDaVinciAmFreitag = dienstSlots.stream()
+                .anyMatch(s -> s.datum.equals(freitagDavor) &&
+                              s.dienstArt == DienstArt.DAVINCI &&
+                              Objects.equals(s.zugewiesenePerson, person));
+            if (hatteDaVinciAmFreitag) {
+                score -= DAVINCI_SAMSTAG_MALUS;
+            }
+        }
+
+        // Regel 2: Wenn DaVinci-Slot und Person hat schon DaVinci im Monat → Malus
+        if (slot.dienstArt == DienstArt.DAVINCI) {
+            int anzahlDaVinci = berechneDienstartBalance(person, DienstArt.DAVINCI);
+            if (anzahlDaVinci >= DAVINCI_MAX_PRO_MONAT) {
+                score -= DAVINCI_MEHRFACH_MALUS;
+            }
+        }
+
+        return score;
+    }
+
+    /**
      * Initialisierung der Datenstrukturen
      */
     private void initializeStructures() {
@@ -601,10 +646,8 @@ public class DienstplanGenerator {
         // Visten: Nur Sa+So (Wochenende)
         mapping.put(DienstArt.VISTEN, EnumSet.of(Wochentag.SAMSTAG, Wochentag.SONNTAG));
 
-        // Spätdienst: Mo-Fr (Werktage)
-        mapping.put(DienstArt.SPAET, EnumSet.of(
-            Wochentag.MONTAG, Wochentag.DIENSTAG, Wochentag.MITTWOCH,
-            Wochentag.DONNERSTAG, Wochentag.FREITAG));
+        // DaVinci: Nur Freitag
+        mapping.put(DienstArt.DAVINCI, EnumSet.of(Wochentag.FREITAG));
 
         return mapping;
     }

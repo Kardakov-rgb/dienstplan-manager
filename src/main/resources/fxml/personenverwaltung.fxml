@@ -118,7 +118,7 @@
                      <VBox spacing="5.0">
                         <CheckBox fx:id="dienst24hCheck" text="24h Dienst" />
                         <CheckBox fx:id="vistenCheck" text="Visten" />
-                        <CheckBox fx:id="spaetCheck" text="Spätdienst" />
+                        <CheckBox fx:id="davinciCheck" text="DaVinci (nur freitags)" />
                      </VBox>
                      
                      <HBox spacing="10.0">

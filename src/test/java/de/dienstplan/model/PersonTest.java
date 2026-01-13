@@ -27,7 +27,7 @@ class PersonTest {
             Wochentag.DONNERSTAG, Wochentag.FREITAG
         ));
         person.setVerfuegbareDienstArten(EnumSet.of(
-            DienstArt.DIENST_24H, DienstArt.SPAET
+            DienstArt.DIENST_24H, DienstArt.DAVINCI
         ));
     }
 
@@ -96,7 +96,7 @@ class PersonTest {
         @DisplayName("Kann konfigurierte Dienstarten")
         void kannKonfigurierteDienstarten() {
             assertTrue(person.kannDienstArt(DienstArt.DIENST_24H));
-            assertTrue(person.kannDienstArt(DienstArt.SPAET));
+            assertTrue(person.kannDienstArt(DienstArt.DAVINCI));
             assertFalse(person.kannDienstArt(DienstArt.VISTEN));
         }
     }

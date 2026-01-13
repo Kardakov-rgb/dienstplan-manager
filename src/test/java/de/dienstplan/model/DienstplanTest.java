@@ -97,7 +97,7 @@ class DienstplanTest {
             dienst1.zuweisen(person1);
             dienstplan.addDienst(dienst1);
 
-            Dienst dienst2 = new Dienst(LocalDate.of(2024, 6, 15), DienstArt.SPAET);
+            Dienst dienst2 = new Dienst(LocalDate.of(2024, 6, 15), DienstArt.DAVINCI);
             dienst2.zuweisen(person1);
             dienstplan.addDienst(dienst2);
 
@@ -112,7 +112,7 @@ class DienstplanTest {
             dienst1.zuweisen(person1);
             dienstplan.addDienst(dienst1);
 
-            Dienst dienst2 = new Dienst(LocalDate.of(2024, 6, 15), DienstArt.SPAET);
+            Dienst dienst2 = new Dienst(LocalDate.of(2024, 6, 15), DienstArt.DAVINCI);
             dienst2.zuweisen(person2);
             dienstplan.addDienst(dienst2);
 
@@ -180,7 +180,7 @@ class DienstplanTest {
         void findetDiensteAmDatum() {
             LocalDate datum = LocalDate.of(2024, 6, 15);
             dienstplan.addDienst(new Dienst(datum, DienstArt.DIENST_24H));
-            dienstplan.addDienst(new Dienst(datum, DienstArt.SPAET));
+            dienstplan.addDienst(new Dienst(datum, DienstArt.DAVINCI));
             dienstplan.addDienst(new Dienst(LocalDate.of(2024, 6, 16), DienstArt.DIENST_24H));
 
             List<Dienst> diensteAmDatum = dienstplan.getDiensteAmDatum(datum);
@@ -203,7 +203,7 @@ class DienstplanTest {
         void findetDiensteNachArt() {
             dienstplan.addDienst(new Dienst(LocalDate.of(2024, 6, 15), DienstArt.DIENST_24H));
             dienstplan.addDienst(new Dienst(LocalDate.of(2024, 6, 16), DienstArt.DIENST_24H));
-            dienstplan.addDienst(new Dienst(LocalDate.of(2024, 6, 17), DienstArt.SPAET));
+            dienstplan.addDienst(new Dienst(LocalDate.of(2024, 6, 17), DienstArt.DAVINCI));
 
             List<Dienst> dienste24h = dienstplan.getDiensteVonArt(DienstArt.DIENST_24H);
             assertEquals(2, dienste24h.size());

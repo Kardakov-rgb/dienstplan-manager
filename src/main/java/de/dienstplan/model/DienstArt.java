@@ -6,7 +6,7 @@ package de.dienstplan.model;
 public enum DienstArt {
     DIENST_24H("24h Dienst", "24h", "Ganztägiger 24-Stunden-Dienst"),
     VISTEN("Visten", "V", "Visite und Patientenbetreuung"),
-    SPAET("Spätdienst", "Spät", "Spätschicht am Abend");
+    DAVINCI("DaVinci", "daVinci", "DaVinci-Dienst (nur freitags)");
     
     private final String vollName;
     private final String kurzName;

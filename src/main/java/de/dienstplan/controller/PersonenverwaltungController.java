@@ -65,7 +65,7 @@ public class PersonenverwaltungController implements Initializable {
     // FXML Controls - Dienstarten
     @FXML private CheckBox dienst24hCheck;
     @FXML private CheckBox vistenCheck;
-    @FXML private CheckBox spaetCheck;
+    @FXML private CheckBox davinciCheck;
     @FXML private Button alleDienstartButton;
     @FXML private Button keineDienstartButton;
 
@@ -424,7 +424,7 @@ public class PersonenverwaltungController implements Initializable {
         EnumSet<DienstArt> dienstArten = person.getVerfuegbareDienstArten();
         dienst24hCheck.setSelected(dienstArten.contains(DienstArt.DIENST_24H));
         vistenCheck.setSelected(dienstArten.contains(DienstArt.VISTEN));
-        spaetCheck.setSelected(dienstArten.contains(DienstArt.SPAET));
+        davinciCheck.setSelected(dienstArten.contains(DienstArt.DAVINCI));
     }
 
     private void clearFormular() {
@@ -451,7 +451,7 @@ public class PersonenverwaltungController implements Initializable {
 
         dienst24hCheck.setDisable(!aktiviert);
         vistenCheck.setDisable(!aktiviert);
-        spaetCheck.setDisable(!aktiviert);
+        davinciCheck.setDisable(!aktiviert);
         alleDienstartButton.setDisable(!aktiviert);
         keineDienstartButton.setDisable(!aktiviert);
 
@@ -472,7 +472,7 @@ public class PersonenverwaltungController implements Initializable {
     private void setAlleDienstarten(boolean selected) {
         dienst24hCheck.setSelected(selected);
         vistenCheck.setSelected(selected);
-        spaetCheck.setSelected(selected);
+        davinciCheck.setSelected(selected);
     }
 
     private boolean validateFormular() {
@@ -514,7 +514,7 @@ public class PersonenverwaltungController implements Initializable {
     }
 
     private boolean hatDienstartenAusgewaehlt() {
-        return dienst24hCheck.isSelected() || vistenCheck.isSelected() || spaetCheck.isSelected();
+        return dienst24hCheck.isSelected() || vistenCheck.isSelected() || davinciCheck.isSelected();
     }
 
     private Person erstellePersonAusFormular() {
@@ -539,7 +539,7 @@ public class PersonenverwaltungController implements Initializable {
         EnumSet<DienstArt> dienstArten = EnumSet.noneOf(DienstArt.class);
         if (dienst24hCheck.isSelected()) dienstArten.add(DienstArt.DIENST_24H);
         if (vistenCheck.isSelected()) dienstArten.add(DienstArt.VISTEN);
-        if (spaetCheck.isSelected()) dienstArten.add(DienstArt.SPAET);
+        if (davinciCheck.isSelected()) dienstArten.add(DienstArt.DAVINCI);
         person.setVerfuegbareDienstArten(dienstArten);
 
         return person;
