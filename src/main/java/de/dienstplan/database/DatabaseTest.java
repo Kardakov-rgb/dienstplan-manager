@@ -72,10 +72,10 @@ public class DatabaseTest {
         );
         person.setArbeitsTage(arbeitsTage);
 
-        // Verfügbare Dienstarten: 24h und Spätdienst
+        // Verfügbare Dienstarten: 24h und DaVinci
         EnumSet<DienstArt> dienstArten = EnumSet.of(
             DienstArt.DIENST_24H,
-            DienstArt.SPAET
+            DienstArt.DAVINCI
         );
         person.setVerfuegbareDienstArten(dienstArten);
 
@@ -105,7 +105,7 @@ public class DatabaseTest {
         ));
         person2.setVerfuegbareDienstArten(EnumSet.of(
             DienstArt.VISTEN,
-            DienstArt.SPAET
+            DienstArt.DAVINCI
         ));
 
         personDAO.create(person2);
@@ -146,15 +146,15 @@ public class DatabaseTest {
 
             createTestPerson("Michael Fischer", 20,
                            EnumSet.of(Wochentag.DIENSTAG, Wochentag.MITTWOCH, Wochentag.DONNERSTAG, Wochentag.FREITAG, Wochentag.SAMSTAG),
-                           EnumSet.of(DienstArt.SPAET, DienstArt.VISTEN)),
+                           EnumSet.of(DienstArt.DAVINCI, DienstArt.VISTEN)),
 
             createTestPerson("Lisa Müller", 22,
                            EnumSet.of(Wochentag.MONTAG, Wochentag.MITTWOCH, Wochentag.FREITAG),
-                           EnumSet.of(DienstArt.DIENST_24H, DienstArt.SPAET, DienstArt.VISTEN)),
+                           EnumSet.of(DienstArt.DIENST_24H, DienstArt.DAVINCI, DienstArt.VISTEN)),
 
             createTestPerson("Thomas Klein", 18,
                            EnumSet.of(Wochentag.MONTAG, Wochentag.DIENSTAG, Wochentag.DONNERSTAG),
-                           EnumSet.of(DienstArt.SPAET))
+                           EnumSet.of(DienstArt.DAVINCI))
         };
 
         for (Person person : testPersonen) {

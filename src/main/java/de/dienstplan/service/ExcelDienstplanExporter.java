@@ -191,7 +191,7 @@ public class ExcelDienstplanExporter {
 
         // Header
         Row headerRow = sheet.createRow(0);
-        String[] headers = {"Person", "24h", "Spät", "Visten", "Gesamt"};
+        String[] headers = {"Person", "24h", "DaVinci", "Visten", "Gesamt"};
         for (int i = 0; i < headers.length; i++) {
             Cell cell = headerRow.createCell(i);
             cell.setCellValue(headers[i]);
@@ -210,12 +210,12 @@ public class ExcelDienstplanExporter {
             Map<DienstArt, Long> counts = diensteCounts.getOrDefault(person.getId(), new EnumMap<>(DienstArt.class));
 
             long dienst24h = counts.getOrDefault(DienstArt.DIENST_24H, 0L);
-            long spaet = counts.getOrDefault(DienstArt.SPAET, 0L);
+            long davinci = counts.getOrDefault(DienstArt.DAVINCI, 0L);
             long visten = counts.getOrDefault(DienstArt.VISTEN, 0L);
-            long gesamt = dienst24h + spaet + visten;
+            long gesamt = dienst24h + davinci + visten;
 
             row.createCell(1).setCellValue(dienst24h);
-            row.createCell(2).setCellValue(spaet);
+            row.createCell(2).setCellValue(davinci);
             row.createCell(3).setCellValue(visten);
             row.createCell(4).setCellValue(gesamt);
 

@@ -31,11 +31,11 @@ class DienstplanGeneratorTest {
         // Erstelle Test-Personen mit verschiedenen Konfigurationen
         personen.add(createPerson(1L, "Anna", 5,
             EnumSet.allOf(Wochentag.class),
-            EnumSet.of(DienstArt.DIENST_24H, DienstArt.SPAET)));
+            EnumSet.of(DienstArt.DIENST_24H, DienstArt.DAVINCI)));
 
         personen.add(createPerson(2L, "Bernd", 5,
             EnumSet.of(Wochentag.MONTAG, Wochentag.DIENSTAG, Wochentag.MITTWOCH, Wochentag.DONNERSTAG, Wochentag.FREITAG),
-            EnumSet.of(DienstArt.DIENST_24H, DienstArt.SPAET)));
+            EnumSet.of(DienstArt.DIENST_24H, DienstArt.DAVINCI)));
 
         personen.add(createPerson(3L, "Clara", 5,
             EnumSet.allOf(Wochentag.class),
@@ -71,9 +71,9 @@ class DienstplanGeneratorTest {
             assertNotNull(dienstplan);
 
             // Juni 2024: 30 Tage
-            // 30 x DIENST_24H + 8 x VISTEN (4 Wochenenden) + 20 x SPAET (Werktage)
-            // = 30 + 8 + 20 = 58 Dienste (ungefähr, je nach Kalender)
-            assertTrue(dienstplan.getDienste().size() > 50);
+            // 30 x DIENST_24H + 8 x VISTEN (4 Wochenenden) + 4 x DAVINCI (Freitage)
+            // = 30 + 8 + 4 = 42 Dienste (ungefähr, je nach Kalender)
+            assertTrue(dienstplan.getDienste().size() > 40);
         }
 
         @Test
