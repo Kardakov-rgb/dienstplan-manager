@@ -212,26 +212,7 @@
          
          <!-- Statistiken Tab -->
          <Tab fx:id="statistikenTab" text="📊 Statistiken">
-            <ScrollPane fitToWidth="true">
-               <VBox fx:id="statistikenContent" spacing="20.0">
-                  <padding>
-                     <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
-                  </padding>
-                  
-                  <Label style="-fx-font-size: 24px; -fx-font-weight: bold;" text="📊 Statistiken und Auswertungen" />
-                  
-                  <Label style="-fx-font-size: 16px; -fx-text-fill: #666;" 
-                         text="Hier werden später detaillierte Statistiken und Auswertungen angezeigt." />
-                  
-                  <!-- Platzhalter für zukünftige Statistiken -->
-                  <VBox alignment="CENTER" spacing="20.0" style="-fx-padding: 50px;">
-                     <Label style="-fx-font-size: 48px;" text="📈" />
-                     <Label style="-fx-font-size: 18px;" text="Statistiken werden implementiert..." />
-                     <Label style="-fx-font-size: 14px; -fx-text-fill: #888;" 
-                            text="Zukünftige Features: Auslastungsanalyse, Fairness-Index, Trends, etc." />
-                  </VBox>
-               </VBox>
-            </ScrollPane>
+            <fx:include fx:id="statistikenView" source="statistiken.fxml" />
          </Tab>
          
       </TabPane>

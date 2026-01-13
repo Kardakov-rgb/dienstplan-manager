@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<ScrollPane xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="de.dienstplan.controller.StatistikenController"
+            fitToWidth="true" fitToHeight="true">
+
+    <VBox fx:id="rootContainer" spacing="20.0">
+        <padding>
+            <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
+        </padding>
+
+        <!-- Header -->
+        <HBox alignment="CENTER_LEFT" spacing="20.0">
+            <Label style="-fx-font-size: 24px; -fx-font-weight: bold;" text="Statistiken und Auswertungen" />
+            <Region HBox.hgrow="ALWAYS" />
+
+            <!-- Zeitraum-Auswahl -->
+            <Label text="Zeitraum:" />
+            <ComboBox fx:id="zeitraumComboBox" prefWidth="150.0" />
+            <ComboBox fx:id="monatVonComboBox" prefWidth="120.0" promptText="Von" />
+            <ComboBox fx:id="monatBisComboBox" prefWidth="120.0" promptText="Bis" />
+            <Button fx:id="aktualisierenButton" onAction="#onAktualisieren"
+                    style="-fx-background-color: #2196F3; -fx-text-fill: white;"
+                    text="Aktualisieren" />
+            <Button fx:id="exportButton" onAction="#onExport" text="Export" />
+        </HBox>
+
+        <Separator />
+
+        <!-- Schnell-Übersicht Karten -->
+        <HBox alignment="CENTER" spacing="20.0">
+            <!-- Abdeckungsgrad -->
+            <VBox alignment="CENTER" spacing="5.0" prefWidth="180.0"
+                  style="-fx-background-color: #E3F2FD; -fx-padding: 15px; -fx-background-radius: 10px;">
+                <Label style="-fx-font-size: 14px; -fx-text-fill: #666;" text="Abdeckungsgrad" />
+                <Label fx:id="abdeckungsgradLabel" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #2196F3;" text="0%" />
+                <ProgressBar fx:id="abdeckungsgradBar" prefWidth="150.0" progress="0.0" />
+            </VBox>
+
+            <!-- Offene Dienste -->
+            <VBox alignment="CENTER" spacing="5.0" prefWidth="180.0"
+                  style="-fx-background-color: #FFF3E0; -fx-padding: 15px; -fx-background-radius: 10px;">
+                <Label style="-fx-font-size: 14px; -fx-text-fill: #666;" text="Offene Dienste" />
+                <Label fx:id="offeneDiensteLabel" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #FF9800;" text="0" />
+                <Label fx:id="offeneDiensteDetailLabel" style="-fx-font-size: 12px; -fx-text-fill: #888;" text="von 0 gesamt" />
+            </VBox>
+
+            <!-- Durchschn. Wunscherfüllung -->
+            <VBox alignment="CENTER" spacing="5.0" prefWidth="180.0"
+                  style="-fx-background-color: #E8F5E9; -fx-padding: 15px; -fx-background-radius: 10px;">
+                <Label style="-fx-font-size: 14px; -fx-text-fill: #666;" text="Wunscherfüllung" />
+                <Label fx:id="wunscherfuellungLabel" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #4CAF50;" text="0%" />
+                <Label fx:id="wunscherfuellungDetailLabel" style="-fx-font-size: 12px; -fx-text-fill: #888;" text="Durchschnitt" />
+            </VBox>
+
+            <!-- Konflikte -->
+            <VBox alignment="CENTER" spacing="5.0" prefWidth="180.0"
+                  style="-fx-background-color: #FFEBEE; -fx-padding: 15px; -fx-background-radius: 10px;">
+                <Label style="-fx-font-size: 14px; -fx-text-fill: #666;" text="Konflikte" />
+                <Label fx:id="konflikteLabel" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #F44336;" text="0" />
+                <Label fx:id="konflikteDetailLabel" style="-fx-font-size: 12px; -fx-text-fill: #888;" text="Doppelbelegungen" />
+            </VBox>
+        </HBox>
+
+        <Separator />
+
+        <!-- Fairness & Wunscherfüllung Sektion -->
+        <TitledPane text="Fairness und Wunscherfüllung" expanded="true" collapsible="true">
+            <VBox spacing="15.0">
+                <padding>
+                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                </padding>
+
+                <!-- Benachteiligte Warnung -->
+                <HBox fx:id="benachteiligteBox" alignment="CENTER_LEFT" spacing="10.0"
+                      style="-fx-background-color: #FFECB3; -fx-padding: 10px; -fx-background-radius: 5px;"
+                      visible="false" managed="false">
+                    <Label style="-fx-font-size: 16px;" text="⚠️" />
+                    <Label fx:id="benachteiligteLabel" style="-fx-font-weight: bold;"
+                           text="Benachteiligte Mitarbeiter (&lt;70% Erfüllung):" />
+                    <Label fx:id="benachteiligteNamenLabel" text="" />
+                </HBox>
+
+                <HBox spacing="20.0">
+                    <!-- Wunscherfüllung Tabelle -->
+                    <VBox spacing="10.0" HBox.hgrow="ALWAYS">
+                        <Label style="-fx-font-size: 16px; -fx-font-weight: bold;" text="Wunscherfüllung pro Mitarbeiter" />
+                        <TableView fx:id="wunscherfuellungTable" prefHeight="250.0">
+                            <columns>
+                                <TableColumn fx:id="wunschPersonColumn" prefWidth="120.0" text="Person" />
+                                <TableColumn fx:id="wunschFreiColumn" prefWidth="100.0" text="Freiwünsche" />
+                                <TableColumn fx:id="wunschDienstColumn" prefWidth="100.0" text="Dienstwünsche" />
+                                <TableColumn fx:id="wunschGesamtColumn" prefWidth="80.0" text="Gesamt %" />
+                                <TableColumn fx:id="wunschStatusColumn" prefWidth="60.0" text="Status" />
+                            </columns>
+                        </TableView>
+                    </VBox>
+
+                    <!-- Wunscherfüllung Chart -->
+                    <VBox spacing="10.0" prefWidth="400.0">
+                        <Label style="-fx-font-size: 16px; -fx-font-weight: bold;" text="Erfüllungsquote" />
+                        <BarChart fx:id="wunscherfuellungChart" prefHeight="250.0" legendVisible="true">
+                            <xAxis>
+                                <CategoryAxis fx:id="wunschChartXAxis" label="Person" />
+                            </xAxis>
+                            <yAxis>
+                                <NumberAxis fx:id="wunschChartYAxis" label="%" upperBound="100.0" tickUnit="10.0" />
+                            </yAxis>
+                        </BarChart>
+                    </VBox>
+                </HBox>
+
+                <!-- Fairness Trend -->
+                <VBox spacing="10.0">
+                    <Label style="-fx-font-size: 16px; -fx-font-weight: bold;" text="Historischer Fairness-Trend" />
+                    <LineChart fx:id="fairnessTrendChart" prefHeight="250.0" legendVisible="true">
+                        <xAxis>
+                            <CategoryAxis fx:id="trendChartXAxis" label="Monat" />
+                        </xAxis>
+                        <yAxis>
+                            <NumberAxis fx:id="trendChartYAxis" label="Erfüllung %" upperBound="100.0" tickUnit="10.0" />
+                        </yAxis>
+                    </LineChart>
+                </VBox>
+            </VBox>
+        </TitledPane>
+
+        <!-- Dienst-Verteilung Sektion -->
+        <TitledPane text="Dienst-Verteilung" expanded="true" collapsible="true">
+            <VBox spacing="15.0">
+                <padding>
+                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                </padding>
+
+                <HBox spacing="20.0">
+                    <!-- Soll/Ist Vergleich -->
+                    <VBox spacing="10.0" HBox.hgrow="ALWAYS">
+                        <Label style="-fx-font-size: 16px; -fx-font-weight: bold;" text="Dienste pro Person (Soll vs. Ist)" />
+                        <TableView fx:id="sollIstTable" prefHeight="200.0">
+                            <columns>
+                                <TableColumn fx:id="sollIstPersonColumn" prefWidth="120.0" text="Person" />
+                                <TableColumn fx:id="sollIstSollColumn" prefWidth="80.0" text="Soll" />
+                                <TableColumn fx:id="sollIstIstColumn" prefWidth="80.0" text="Ist" />
+                                <TableColumn fx:id="sollIstDiffColumn" prefWidth="80.0" text="Differenz" />
+                            </columns>
+                        </TableView>
+                    </VBox>
+
+                    <!-- Soll/Ist Chart -->
+                    <VBox spacing="10.0" prefWidth="400.0">
+                        <Label style="-fx-font-size: 16px; -fx-font-weight: bold;" text="Soll/Ist Vergleich" />
+                        <BarChart fx:id="sollIstChart" prefHeight="200.0" legendVisible="true">
+                            <xAxis>
+                                <CategoryAxis fx:id="sollIstChartXAxis" label="Person" />
+                            </xAxis>
+                            <yAxis>
+                                <NumberAxis fx:id="sollIstChartYAxis" label="Anzahl" />
+                            </yAxis>
+                        </BarChart>
+                    </VBox>
+                </HBox>
+
+                <HBox spacing="20.0">
+                    <!-- Dienstarten Verteilung -->
+                    <VBox spacing="10.0" HBox.hgrow="ALWAYS">
+                        <Label style="-fx-font-size: 16px; -fx-font-weight: bold;" text="Verteilung nach Dienstarten" />
+                        <HBox spacing="20.0" alignment="CENTER">
+                            <PieChart fx:id="dienstArtenPieChart" prefHeight="200.0" prefWidth="300.0"
+                                      legendVisible="true" labelsVisible="true" />
+                            <TableView fx:id="dienstArtenTable" prefHeight="150.0" prefWidth="250.0">
+                                <columns>
+                                    <TableColumn fx:id="dienstArtColumn" prefWidth="100.0" text="Dienstart" />
+                                    <TableColumn fx:id="dienstArtAnzahlColumn" prefWidth="70.0" text="Anzahl" />
+                                    <TableColumn fx:id="dienstArtProzentColumn" prefWidth="70.0" text="%" />
+                                </columns>
+                            </TableView>
+                        </HBox>
+                    </VBox>
+                </HBox>
+
+                <!-- Wochentag Verteilung -->
+                <VBox spacing="10.0">
+                    <Label style="-fx-font-size: 16px; -fx-font-weight: bold;" text="Dienste nach Wochentagen" />
+                    <BarChart fx:id="wochentagChart" prefHeight="200.0" legendVisible="false">
+                        <xAxis>
+                            <CategoryAxis fx:id="wochentagChartXAxis" label="Wochentag" />
+                        </xAxis>
+                        <yAxis>
+                            <NumberAxis fx:id="wochentagChartYAxis" label="Anzahl Dienste" />
+                        </yAxis>
+                    </BarChart>
+                </VBox>
+            </VBox>
+        </TitledPane>
+
+        <!-- Planungsqualität Sektion -->
+        <TitledPane text="Planungsqualität" expanded="true" collapsible="true">
+            <VBox spacing="15.0">
+                <padding>
+                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                </padding>
+
+                <HBox spacing="20.0">
+                    <!-- Offene Dienste Liste -->
+                    <VBox spacing="10.0" HBox.hgrow="ALWAYS">
+                        <Label style="-fx-font-size: 16px; -fx-font-weight: bold;" text="Offene Dienste" />
+                        <TableView fx:id="offeneDiensteTable" prefHeight="200.0">
+                            <columns>
+                                <TableColumn fx:id="offenDatumColumn" prefWidth="100.0" text="Datum" />
+                                <TableColumn fx:id="offenWochentagColumn" prefWidth="80.0" text="Wochentag" />
+                                <TableColumn fx:id="offenDienstartColumn" prefWidth="100.0" text="Dienstart" />
+                                <TableColumn fx:id="offenDienstplanColumn" prefWidth="120.0" text="Dienstplan" />
+                            </columns>
+                        </TableView>
+                    </VBox>
+
+                    <!-- Konflikte Liste -->
+                    <VBox spacing="10.0" HBox.hgrow="ALWAYS">
+                        <Label style="-fx-font-size: 16px; -fx-font-weight: bold;" text="Konflikte (Doppelbelegungen)" />
+                        <TableView fx:id="konflikteTable" prefHeight="200.0">
+                            <columns>
+                                <TableColumn fx:id="konfliktDatumColumn" prefWidth="100.0" text="Datum" />
+                                <TableColumn fx:id="konfliktPersonColumn" prefWidth="120.0" text="Person" />
+                                <TableColumn fx:id="konfliktAnzahlColumn" prefWidth="80.0" text="Dienste" />
+                                <TableColumn fx:id="konfliktDetailsColumn" prefWidth="150.0" text="Details" />
+                            </columns>
+                        </TableView>
+                    </VBox>
+                </HBox>
+            </VBox>
+        </TitledPane>
+
+        <!-- Status-Leiste -->
+        <HBox alignment="CENTER_LEFT" spacing="10.0" style="-fx-background-color: #F5F5F5; -fx-padding: 10px;">
+            <Label fx:id="statusLabel" text="Bereit" />
+            <Region HBox.hgrow="ALWAYS" />
+            <Label fx:id="letzteAktualisierungLabel" style="-fx-text-fill: #888;" text="Letzte Aktualisierung: -" />
+        </HBox>
+
+    </VBox>
+</ScrollPane>
