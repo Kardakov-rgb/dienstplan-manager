@@ -318,6 +318,16 @@ public class DienstplanGenerator {
     }
 
     /**
+     * Prüft ob eine Person an einem Datum Visitendienst hat.
+     */
+    private boolean hatPersonVistendienstAm(Person person, LocalDate datum) {
+        return dienstSlots.stream()
+                .anyMatch(slot -> slot.datum.equals(datum) &&
+                                 slot.dienstArt == DienstArt.VISTEN &&
+                                 Objects.equals(slot.zugewiesenePerson, person));
+    }
+
+    /**
      * Prüft ob eine Person an einem Datum Urlaub hat.
      */
     private boolean hatUrlaubAm(Long personId, LocalDate datum) {
@@ -347,9 +357,17 @@ public class DienstplanGenerator {
         List<LocalDate> personsDienste = personDienste.get(person.getId());
 
         // Harte Regel: Nach Dienst → nächster Tag frei
+        // AUSNAHME: Visitendienst am Sonntag nach Visitendienst am Samstag ist erlaubt (Wochenend-Paket)
         LocalDate vortag = slot.datum.minusDays(1);
         if (personsDienste.contains(vortag)) {
-            return false;
+            // Prüfe ob es sich um Visitendienst Sa→So handelt
+            boolean istVistenSonntagNachSamstag = slot.dienstArt == DienstArt.VISTEN &&
+                    Wochentag.fromLocalDate(slot.datum) == Wochentag.SONNTAG &&
+                    hatPersonVistendienstAm(person, vortag);
+
+            if (!istVistenSonntagNachSamstag) {
+                return false;
+            }
         }
 
         // Harte Regel: Nach Urlaub → erster Tag frei
@@ -370,6 +388,22 @@ public class DienstplanGenerator {
      * Vergleichsfunktion für optimale Kandidatenreihenfolge
      */
     private int comparePersonenFuerSlot(Person p1, Person p2, DienstSlot slot) {
+        // 0. HÖCHSTE Priorität: Visitendienst Wochenend-Paket (Sa+So gleiche Person)
+        // Wenn Sonntag-Visitendienst, bevorzuge Person die Samstag-Visitendienst hat
+        if (slot.dienstArt == DienstArt.VISTEN &&
+                Wochentag.fromLocalDate(slot.datum) == Wochentag.SONNTAG) {
+            LocalDate samstag = slot.datum.minusDays(1);
+            boolean p1HatSamstagVisten = hatPersonVistendienstAm(p1, samstag);
+            boolean p2HatSamstagVisten = hatPersonVistendienstAm(p2, samstag);
+
+            if (p1HatSamstagVisten && !p2HatSamstagVisten) {
+                return -1; // p1 bevorzugen (hat Samstag-Visitendienst)
+            }
+            if (!p1HatSamstagVisten && p2HatSamstagVisten) {
+                return 1;  // p2 bevorzugen (hat Samstag-Visitendienst)
+            }
+        }
+
         // 1. Priorität: Wunsch-basierte Bewertung (Dienstwunsch positiv, Freiwunsch negativ)
         double wunschScore1 = berechneWunschScore(p1, slot);
         double wunschScore2 = berechneWunschScore(p2, slot);
