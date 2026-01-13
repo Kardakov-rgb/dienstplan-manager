@@ -128,6 +128,9 @@ public class DienstplanerstellungController implements Initializable {
     private final ObservableList<PersonStatistik> personStatistikListe = FXCollections.observableArrayList();
     private Map<LocalDate, List<Dienst>> tagesDienste = new HashMap<>();
 
+    // Flag um Listener-Konflikte bei programmatischen ComboBox-Updates zu vermeiden
+    private boolean programmaticUpdate = false;
+
     // UI-Konstanten (statt Emojis im Code)
     private static final String ICON_SUCCESS = "[OK]";
     private static final String ICON_WARNING = "[!]";
@@ -204,9 +207,9 @@ public class DienstplanerstellungController implements Initializable {
         // Dienstplan Name automatisch setzen
         updateDienstplanName();
         
-        // Event Listeners
+        // Event Listeners - nur reagieren wenn keine programmatische Änderung
         monatComboBox.valueProperty().addListener((obs, old, neu) -> {
-            if (neu != null) {
+            if (neu != null && !programmaticUpdate) {
                 updateAktuellerMonat();
                 updateDienstplanName();
                 ladeExistierendenDienstplan();
@@ -215,7 +218,7 @@ public class DienstplanerstellungController implements Initializable {
         });
 
         jahrComboBox.valueProperty().addListener((obs, old, neu) -> {
-            if (neu != null) {
+            if (neu != null && !programmaticUpdate) {
                 updateAktuellerMonat();
                 updateDienstplanName();
                 ladeExistierendenDienstplan();
@@ -685,8 +688,14 @@ public class DienstplanerstellungController implements Initializable {
     }
     
     private void updateMonatJahrComboBoxes() {
-        monatComboBox.getSelectionModel().select(aktuellerMonat.getMonthValue() - 1);
-        jahrComboBox.setValue(aktuellerMonat.getYear());
+        // Flag setzen um Listener-Konflikte zu vermeiden
+        programmaticUpdate = true;
+        try {
+            monatComboBox.getSelectionModel().select(aktuellerMonat.getMonthValue() - 1);
+            jahrComboBox.setValue(aktuellerMonat.getYear());
+        } finally {
+            programmaticUpdate = false;
+        }
     }
     
     private void updateDienstplanName() {
