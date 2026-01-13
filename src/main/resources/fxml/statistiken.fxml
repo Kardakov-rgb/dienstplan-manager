@@ -95,7 +95,7 @@
                                 <TableColumn fx:id="wunschPersonColumn" prefWidth="120.0" text="Person" />
                                 <TableColumn fx:id="wunschFreiColumn" prefWidth="100.0" text="Freiwünsche" />
                                 <TableColumn fx:id="wunschDienstColumn" prefWidth="100.0" text="Dienstwünsche" />
-                                <TableColumn fx:id="wunschGesamtColumn" prefWidth="80.0" text="Gesamt %" />
+                                <TableColumn fx:id="wunschGesamtColumn" prefWidth="80.0" text="Gesamt" />
                                 <TableColumn fx:id="wunschStatusColumn" prefWidth="60.0" text="Status" />
                             </columns>
                         </TableView>
@@ -109,7 +109,7 @@
                                 <CategoryAxis fx:id="wunschChartXAxis" label="Person" />
                             </xAxis>
                             <yAxis>
-                                <NumberAxis fx:id="wunschChartYAxis" label="%" upperBound="100.0" tickUnit="10.0" />
+                                <NumberAxis fx:id="wunschChartYAxis" label="Prozent" upperBound="100.0" tickUnit="10.0" />
                             </yAxis>
                         </BarChart>
                     </VBox>
@@ -123,7 +123,7 @@
                             <CategoryAxis fx:id="trendChartXAxis" label="Monat" />
                         </xAxis>
                         <yAxis>
-                            <NumberAxis fx:id="trendChartYAxis" label="Erfüllung %" upperBound="100.0" tickUnit="10.0" />
+                            <NumberAxis fx:id="trendChartYAxis" label="Erfüllung (Prozent)" upperBound="100.0" tickUnit="10.0" />
                         </yAxis>
                     </LineChart>
                 </VBox>
@@ -176,7 +176,7 @@
                                 <columns>
                                     <TableColumn fx:id="dienstArtColumn" prefWidth="100.0" text="Dienstart" />
                                     <TableColumn fx:id="dienstArtAnzahlColumn" prefWidth="70.0" text="Anzahl" />
-                                    <TableColumn fx:id="dienstArtProzentColumn" prefWidth="70.0" text="%" />
+                                    <TableColumn fx:id="dienstArtProzentColumn" prefWidth="70.0" text="Anteil" />
                                 </columns>
                             </TableView>
                         </HBox>
