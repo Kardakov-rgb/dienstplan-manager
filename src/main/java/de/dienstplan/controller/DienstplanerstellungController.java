@@ -383,6 +383,7 @@ public class DienstplanerstellungController implements Initializable {
             @Override
             protected void failed() {
                 Platform.runLater(() -> {
+                    zuweisungsgradBar.progressProperty().unbind();
                     logger.error("Generierung fehlgeschlagen", getException());
                     setStatus("Generierung fehlgeschlagen: " + getException().getMessage());
                     generiereButton.setDisable(false);
@@ -401,6 +402,9 @@ public class DienstplanerstellungController implements Initializable {
     }
     
     private void onGenerierungAbgeschlossen(DienstplanGenerator.DienstplanGenerierungResult result) {
+        // ProgressBar-Bindung entfernen, damit sie wieder manuell gesetzt werden kann
+        zuweisungsgradBar.progressProperty().unbind();
+
         try {
             aktuellerDienstplan = result.getDienstplan();
 
