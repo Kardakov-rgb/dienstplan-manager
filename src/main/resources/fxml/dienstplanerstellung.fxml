@@ -237,21 +237,21 @@
                              prefWidth="200.0" text="Details anzeigen" />
                   </VBox>
 
-                  <Separator />
-                  
-                  <!-- Schnellaktionen -->
-                  <VBox spacing="10.0">
+                  <Separator visible="false" managed="false" />
+
+                  <!-- Schnellaktionen - AUSGEBLENDET -->
+                  <VBox spacing="10.0" visible="false" managed="false">
                      <Label style="-fx-font-weight: bold;" text="Schnellaktionen" />
-                     
+
                      <VBox spacing="5.0">
-                        <Button fx:id="alleBestaetigenButton" onAction="#onAlleDiensteBestaetigen" 
+                        <Button fx:id="alleBestaetigenButton" onAction="#onAlleDiensteBestaetigen"
                                 prefWidth="200.0" text="✅ Alle Dienste bestätigen" />
-                        <Button fx:id="offeneAnzeigenButton" onAction="#onOffeneDiensteAnzeigen" 
+                        <Button fx:id="offeneAnzeigenButton" onAction="#onOffeneDiensteAnzeigen"
                                 prefWidth="200.0" text="🔍 Offene Dienste anzeigen" />
-                        <Button fx:id="konflikteFindenButton" onAction="#onKonflikteAnzeigen" 
+                        <Button fx:id="konflikteFindenButton" onAction="#onKonflikteAnzeigen"
                                 prefWidth="200.0" text="⚠️ Konflikte suchen" />
-                        <Button fx:id="dienstplanLeeren" onAction="#onDienstplanLeeren" 
-                                prefWidth="200.0" style="-fx-background-color: #f44336; -fx-text-fill: white;" 
+                        <Button fx:id="dienstplanLeeren" onAction="#onDienstplanLeeren"
+                                prefWidth="200.0" style="-fx-background-color: #f44336; -fx-text-fill: white;"
                                 text="🗑️ Dienstplan leeren" />
                      </VBox>
                   </VBox>

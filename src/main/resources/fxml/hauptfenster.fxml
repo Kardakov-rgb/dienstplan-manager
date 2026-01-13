@@ -51,8 +51,8 @@
             </Menu>
          </MenuBar>
          
-         <!-- Toolbar -->
-         <ToolBar fx:id="toolBar" prefHeight="50.0">
+         <!-- Toolbar - AUSGEBLENDET -->
+         <ToolBar fx:id="toolBar" prefHeight="50.0" visible="false" managed="false">
             <Button fx:id="neuePersonToolButton" onAction="#onNeuePersonHinzufuegen" 
                     style="-fx-background-color: #4CAF50; -fx-text-fill: white;" 
                     text="👤 Neue Person" />
@@ -147,22 +147,22 @@
                   
                   <Separator />
                   
-                  <!-- Aktuelle Aktivitäten -->
-                  <VBox spacing="15.0">
+                  <!-- Aktuelle Aktivitäten - AUSGEBLENDET -->
+                  <VBox spacing="15.0" visible="false" managed="false">
                      <Label style="-fx-font-size: 20px; -fx-font-weight: bold;" text="📋 Aktuelle Übersicht" />
-                     
+
                      <GridPane hgap="30.0" vgap="15.0">
                         <columnConstraints>
                            <ColumnConstraints hgrow="ALWAYS" />
                            <ColumnConstraints hgrow="ALWAYS" />
                         </columnConstraints>
-                        
+
                         <!-- Letzte Aktivitäten -->
                         <VBox spacing="10.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
                            <Label style="-fx-font-size: 16px; -fx-font-weight: bold;" text="📝 Letzte Aktivitäten" />
                            <ListView fx:id="aktivitaetenList" prefHeight="200.0" />
                         </VBox>
-                        
+
                         <!-- Nächste Termine/Aufgaben -->
                         <VBox spacing="10.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
                            <Label style="-fx-font-size: 16px; -fx-font-weight: bold;" text="⚠️ Benötigt Aufmerksamkeit" />
@@ -170,8 +170,8 @@
                         </VBox>
                      </GridPane>
                   </VBox>
-                  
-                  <Separator />
+
+                  <Separator visible="false" managed="false" />
                   
                   <!-- Schnellstatistiken -->
                   <VBox spacing="15.0">
