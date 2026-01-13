@@ -57,7 +57,23 @@ public enum DienstArt {
         }
         return null;
     }
-    
+
+    /**
+     * Sichere Alternative zu valueOf - gibt null zurück statt Exception zu werfen
+     * @param name Der Enum-Name
+     * @return Die entsprechende DienstArt oder null wenn nicht gefunden
+     */
+    public static DienstArt safeValueOf(String name) {
+        if (name == null) {
+            return null;
+        }
+        try {
+            return DienstArt.valueOf(name);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+    }
+
     @Override
     public String toString() {
         return vollName;

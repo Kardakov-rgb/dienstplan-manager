@@ -115,14 +115,15 @@ public class DienstDAO {
             
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    return Optional.of(mapResultSetToDienst(rs));
+                    Dienst dienst = mapResultSetToDienst(rs);
+                    return Optional.ofNullable(dienst);
                 }
             }
         }
-        
+
         return Optional.empty();
     }
-    
+
     /**
      * Findet alle Dienste eines Dienstplans
      */
@@ -148,14 +149,17 @@ public class DienstDAO {
             
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    dienste.add(mapResultSetToDienst(rs));
+                    Dienst dienst = mapResultSetToDienst(rs);
+                    if (dienst != null) {
+                        dienste.add(dienst);
+                    }
                 }
             }
         }
-        
+
         return dienste;
     }
-    
+
     /**
      * Findet alle Dienste einer Person
      */
@@ -181,14 +185,17 @@ public class DienstDAO {
             
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    dienste.add(mapResultSetToDienst(rs));
+                    Dienst dienst = mapResultSetToDienst(rs);
+                    if (dienst != null) {
+                        dienste.add(dienst);
+                    }
                 }
             }
         }
-        
+
         return dienste;
     }
-    
+
     /**
      * Findet alle Dienste in einem Datumsbereich
      */
@@ -215,14 +222,17 @@ public class DienstDAO {
             
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    dienste.add(mapResultSetToDienst(rs));
+                    Dienst dienst = mapResultSetToDienst(rs);
+                    if (dienst != null) {
+                        dienste.add(dienst);
+                    }
                 }
             }
         }
-        
+
         return dienste;
     }
-    
+
     /**
      * Findet alle Dienste eines bestimmten Datums
      */
@@ -248,14 +258,17 @@ public class DienstDAO {
             
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    dienste.add(mapResultSetToDienst(rs));
+                    Dienst dienst = mapResultSetToDienst(rs);
+                    if (dienst != null) {
+                        dienste.add(dienst);
+                    }
                 }
             }
         }
-        
+
         return dienste;
     }
-    
+
     /**
      * Findet alle offenen (nicht zugewiesenen) Dienste
      */
@@ -273,15 +286,18 @@ public class DienstDAO {
         try (Connection conn = DatabaseManager.createConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
-            
+
             while (rs.next()) {
-                dienste.add(mapResultSetToDienst(rs));
+                Dienst dienst = mapResultSetToDienst(rs);
+                if (dienst != null) {
+                    dienste.add(dienst);
+                }
             }
         }
-        
+
         return dienste;
     }
-    
+
     /**
      * Findet alle Dienste mit einem bestimmten Status
      */
@@ -307,14 +323,17 @@ public class DienstDAO {
             
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    dienste.add(mapResultSetToDienst(rs));
+                    Dienst dienst = mapResultSetToDienst(rs);
+                    if (dienst != null) {
+                        dienste.add(dienst);
+                    }
                 }
             }
         }
-        
+
         return dienste;
     }
-    
+
     /**
      * Aktualisiert einen Dienst in der Datenbank
      */
@@ -605,17 +624,23 @@ public class DienstDAO {
     private Dienst mapResultSetToDienst(ResultSet rs) throws SQLException {
         Long id = rs.getLong("id");
         LocalDate datum = rs.getDate("datum").toLocalDate();
-        DienstArt art = DienstArt.valueOf(rs.getString("art"));
-        
+        String artString = rs.getString("art");
+        DienstArt art = DienstArt.safeValueOf(artString);
+
+        if (art == null) {
+            logger.warn("Überspringe Dienst mit unbekannter DienstArt: {}", artString);
+            return null;
+        }
+
         Long personId = rs.getLong("person_id");
         if (rs.wasNull()) {
             personId = null;
         }
-        
+
         String personName = rs.getString("person_name");
         DienstStatus status = DienstStatus.valueOf(rs.getString("status"));
         String bemerkung = rs.getString("bemerkung");
-        
+
         return new Dienst(id, datum, art, personId, personName, status, bemerkung);
     }
 }
