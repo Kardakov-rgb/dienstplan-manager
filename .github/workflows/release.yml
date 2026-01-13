@@ -1,0 +1,120 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'  # Trigger bei Tags wie v1.0.0, v1.1.0, etc.
+  workflow_dispatch:  # Erlaubt manuelles Starten
+    inputs:
+      version:
+        description: 'Version für das Release (z.B. 1.0.0)'
+        required: true
+        default: '1.0.0'
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            profile: linux
+            artifact_name: dienstplan-manager-linux
+          - os: windows-latest
+            profile: windows
+            artifact_name: dienstplan-manager-windows
+          - os: macos-latest
+            profile: mac
+            artifact_name: dienstplan-manager-mac
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: maven
+
+      - name: Build mit Maven
+        run: mvn clean package -P ${{ matrix.profile }} -DskipTests
+
+      - name: Umbenennen der JAR-Datei
+        shell: bash
+        run: |
+          mv target/dienstplan-manager-1.0.0.jar target/${{ matrix.artifact_name }}.jar
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: target/${{ matrix.artifact_name }}.jar
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Download alle Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Vorbereiten der Release-Dateien
+        run: |
+          mkdir -p release
+          cp artifacts/dienstplan-manager-linux/dienstplan-manager-linux.jar release/
+          cp artifacts/dienstplan-manager-windows/dienstplan-manager-windows.jar release/
+          cp artifacts/dienstplan-manager-mac/dienstplan-manager-mac.jar release/
+
+          # Startskripte kopieren
+          cp scripts/start-linux.sh release/
+          cp scripts/start-mac.command release/
+          cp scripts/start-windows.bat release/
+
+          # Anleitung kopieren
+          cp TESTER_ANLEITUNG.md release/
+
+      - name: Release erstellen
+        uses: softprops/action-gh-release@v1
+        with:
+          name: Dienstplan-Manager ${{ github.ref_name || github.event.inputs.version }}
+          body: |
+            ## Dienstplan-Manager Release
+
+            ### Download für Ihr Betriebssystem:
+
+            | Betriebssystem | Download |
+            |----------------|----------|
+            | Windows | `dienstplan-manager-windows.jar` + `start-windows.bat` |
+            | macOS | `dienstplan-manager-mac.jar` + `start-mac.command` |
+            | Linux | `dienstplan-manager-linux.jar` + `start-linux.sh` |
+
+            ### Installation:
+            1. Laden Sie die JAR-Datei für Ihr Betriebssystem herunter
+            2. Laden Sie das passende Startskript herunter
+            3. Legen Sie beide Dateien in denselben Ordner
+            4. Führen Sie das Startskript aus
+
+            **Voraussetzung:** Java 17 oder höher muss installiert sein.
+
+            Detaillierte Anleitung: Siehe `TESTER_ANLEITUNG.md`
+          files: |
+            release/dienstplan-manager-linux.jar
+            release/dienstplan-manager-windows.jar
+            release/dienstplan-manager-mac.jar
+            release/start-linux.sh
+            release/start-mac.command
+            release/start-windows.bat
+            release/TESTER_ANLEITUNG.md
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
