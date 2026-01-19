@@ -6,13 +6,13 @@
 
 <BorderPane xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.dienstplan.controller.PersonenverwaltungController">
    <top>
-      <VBox spacing="10.0">
+      <VBox spacing="8.0">
          <padding>
-            <Insets bottom="10.0" left="20.0" right="20.0" top="20.0" />
+            <Insets bottom="8.0" left="15.0" right="15.0" top="10.0" />
          </padding>
-         
+
          <!-- Überschrift -->
-         <Label styleClass="title" style="-fx-font-size: 22px;" text="Personenverwaltung" />
+         <Label styleClass="title" text="Personenverwaltung" />
 
          <!-- Suchbereich -->
          <HBox alignment="CENTER_LEFT" spacing="10.0">
@@ -39,7 +39,7 @@
             <TableView fx:id="personenTabelle" VBox.vgrow="ALWAYS">
                <columns>
                   <TableColumn fx:id="nameColumn" prefWidth="150.0" text="Name" />
-                  <TableColumn fx:id="dienstanzahlColumn" prefWidth="80.0" text="Dienste" />
+                  <TableColumn fx:id="dienstanzahlColumn" prefWidth="90.0" text="Dienste/Monat" />
                   <TableColumn fx:id="arbeitstagColumn" prefWidth="120.0" text="Arbeitstage" />
                   <TableColumn fx:id="dienstartColumn" prefWidth="120.0" text="Dienstarten" />
                </columns>

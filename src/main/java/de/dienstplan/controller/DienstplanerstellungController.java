@@ -795,27 +795,27 @@ public class DienstplanerstellungController implements Initializable {
         label.setMaxWidth(Double.MAX_VALUE);
         label.setStyle("-fx-padding: 2px; -fx-font-size: 10px; -fx-cursor: hand;");
         
-        // Farbe je nach Dienstart und Status
+        // Farbe je nach Dienstart und Status - passend zur Legende
         if (dienst.istZugewiesen()) {
             switch (dienst.getArt()) {
                 case DIENST_24H:
-                    label.setStyle(label.getStyle() + "; -fx-background-color: #E3F2FD; -fx-text-fill: #1976D2;");
+                    label.setStyle(label.getStyle() + "; -fx-background-color: #f9ecec; -fx-text-fill: #7a1d21;");
                     break;
                 case VISTEN:
-                    label.setStyle(label.getStyle() + "; -fx-background-color: #E8F5E8; -fx-text-fill: #388E3C;");
+                    label.setStyle(label.getStyle() + "; -fx-background-color: #fff9e6; -fx-text-fill: #806600;");
                     break;
                 case DAVINCI:
-                    label.setStyle(label.getStyle() + "; -fx-background-color: #F3E5F5; -fx-text-fill: #7B1FA2;");
+                    label.setStyle(label.getStyle() + "; -fx-background-color: #fce4f0; -fx-text-fill: #c82285;");
                     break;
             }
-            
+
             // Status-spezifische Anpassungen
             if (dienst.getStatus() == DienstStatus.BESTAETIGT) {
                 label.setStyle(label.getStyle() + "; -fx-font-weight: bold;");
             }
         } else {
-            // Nicht zugewiesen = rot
-            label.setStyle(label.getStyle() + "; -fx-background-color: #FFEBEE; -fx-text-fill: #D32F2F;");
+            // Nicht zugewiesen = rot (Offen)
+            label.setStyle(label.getStyle() + "; -fx-background-color: #ffebee; -fx-text-fill: #c62828;");
         }
         
         // Tooltip mit Details
