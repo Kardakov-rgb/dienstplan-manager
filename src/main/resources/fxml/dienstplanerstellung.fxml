@@ -12,50 +12,51 @@
          </padding>
          
          <!-- Überschrift -->
-         <Label style="-fx-font-size: 24px; -fx-font-weight: bold;" text="Dienstplan-Erstellung" />
-         
+         <Label styleClass="title" style="-fx-font-size: 22px;" text="Dienstplan-Erstellung" />
+
          <!-- Konfigurationsbereich -->
          <HBox alignment="CENTER_LEFT" spacing="20.0">
             <VBox spacing="5.0">
-               <Label text="Monat:" />
+               <Label text="Monat:" styleClass="text-muted" />
                <ComboBox fx:id="monatComboBox" prefWidth="120.0" />
             </VBox>
 
             <VBox spacing="5.0">
-               <Label text="Jahr:" />
+               <Label text="Jahr:" styleClass="text-muted" />
                <ComboBox fx:id="jahrComboBox" prefWidth="80.0" />
             </VBox>
 
             <VBox spacing="5.0">
-               <Label text="Name:" />
+               <Label text="Name:" styleClass="text-muted" />
                <TextField fx:id="dienstplanNameField" prefWidth="200.0" promptText="z.B. Dienstplan Dezember 2024" />
             </VBox>
 
-            <!-- Excel-Buttons -->
+            <!-- Excel-Buttons (dezenter) -->
             <VBox spacing="5.0">
-               <Label text="Wunsch-Import:" />
+               <Label text="Excel:" styleClass="text-muted" />
                <HBox spacing="5.0">
                   <Button fx:id="excelVorlageButton" onAction="#onExcelVorlageHerunterladen"
-                          style="-fx-background-color: #607D8B; -fx-text-fill: white;"
+                          styleClass="btn-outline-secondary" style="-fx-font-size: 12px;"
                           text="Vorlage" />
                   <Button fx:id="excelImportButton" onAction="#onExcelWuenscheImportieren"
-                          style="-fx-background-color: #795548; -fx-text-fill: white;"
+                          styleClass="btn-outline-secondary" style="-fx-font-size: 12px;"
                           text="Import" />
                </HBox>
             </VBox>
 
             <Region HBox.hgrow="ALWAYS" />
 
-            <VBox spacing="10.0">
+            <!-- Hauptaktionen - klare Hierarchie -->
+            <VBox spacing="8.0" alignment="CENTER_RIGHT">
                <Button fx:id="generiereButton" onAction="#onDienstplanGenerieren"
-                       style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold;"
+                       styleClass="btn-primary" style="-fx-font-size: 14px; -fx-padding: 12 24;"
                        text="Dienstplan generieren" />
-               <HBox spacing="5.0">
+               <HBox spacing="8.0">
                   <Button fx:id="speichernButton" disable="true" onAction="#onDienstplanSpeichern"
-                          style="-fx-background-color: #2196F3; -fx-text-fill: white;"
+                          styleClass="btn-secondary"
                           text="Speichern" />
                   <Button fx:id="exportButton" disable="true" onAction="#onDienstplanExportieren"
-                          style="-fx-background-color: #009688; -fx-text-fill: white;"
+                          styleClass="btn-accent"
                           text="Export" />
                </HBox>
             </VBox>
@@ -95,12 +96,12 @@
             </HBox>
             
             <!-- Legende -->
-            <HBox alignment="CENTER_LEFT" spacing="20.0">
-               <Label style="-fx-background-color: #E3F2FD; -fx-padding: 5px; -fx-border-color: #2196F3;" text="24h" />
-               <Label style="-fx-background-color: #E8F5E8; -fx-padding: 5px; -fx-border-color: #4CAF50;" text="Visten" />
-               <Label style="-fx-background-color: #F3E5F5; -fx-padding: 5px; -fx-border-color: #9C27B0;" text="DaVinci" />
-               <Label style="-fx-background-color: #FFEBEE; -fx-padding: 5px; -fx-border-color: #f44336;" text="Offen" />
-               <Label style="-fx-background-color: #FCE4EC; -fx-padding: 5px; -fx-border-color: #E91E63;" text="U=Urlaub" />
+            <HBox alignment="CENTER_LEFT" spacing="15.0">
+               <Label styleClass="legend-24h" text="24h" />
+               <Label styleClass="legend-visten" text="Visten" />
+               <Label styleClass="legend-davinci" text="DaVinci" />
+               <Label styleClass="legend-offen" text="Offen" />
+               <Label styleClass="legend-urlaub" text="Urlaub" />
             </HBox>
 
             <!-- Wunsch-Info (falls Wünsche importiert) -->
@@ -162,9 +163,10 @@
                      </GridPane>
                      
                      <HBox spacing="10.0">
-                        <Button fx:id="dienstSpeichernButton" onAction="#onDienstSpeichern" 
-                                style="-fx-background-color: #2196F3; -fx-text-fill: white;" text="Speichern" />
-                        <Button fx:id="dienstZuruecksetzenButton" onAction="#onDienstZuruecksetzen" text="Zurücksetzen" />
+                        <Button fx:id="dienstSpeichernButton" onAction="#onDienstSpeichern"
+                                styleClass="btn-secondary" text="Speichern" />
+                        <Button fx:id="dienstZuruecksetzenButton" onAction="#onDienstZuruecksetzen"
+                                styleClass="btn-outline-secondary" text="Zurücksetzen" />
                      </HBox>
                   </VBox>
                   

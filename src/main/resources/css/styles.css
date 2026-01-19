@@ -1,0 +1,606 @@
+/*
+ * Dienstplan-Manager - Modern Clean Design
+ * Farbpalette: #7a1d21 (Dunkelrot), #c82285 (Magenta), #ffcc00 (Gelb), Grautöne
+ */
+
+/* ============================================
+   ROOT VARIABLEN - Farbpalette
+   ============================================ */
+.root {
+    /* Primärfarben */
+    -fx-primary: #7a1d21;
+    -fx-primary-dark: #5a161a;
+    -fx-primary-light: #9a242a;
+    -fx-primary-bg: #f9ecec;
+
+    /* Sekundärfarben (Magenta) */
+    -fx-secondary: #c82285;
+    -fx-secondary-dark: #a01b6b;
+    -fx-secondary-light: #e02998;
+    -fx-secondary-bg: #fce4f0;
+
+    /* Akzentfarben (Gelb) */
+    -fx-accent: #ffcc00;
+    -fx-accent-dark: #e6b800;
+    -fx-accent-light: #ffd633;
+    -fx-accent-bg: #fff9e6;
+
+    /* Grautöne */
+    -fx-gray-900: #1a1a1a;
+    -fx-gray-800: #333333;
+    -fx-gray-700: #4d4d4d;
+    -fx-gray-600: #666666;
+    -fx-gray-500: #808080;
+    -fx-gray-400: #999999;
+    -fx-gray-300: #b3b3b3;
+    -fx-gray-200: #cccccc;
+    -fx-gray-100: #e6e6e6;
+    -fx-gray-50: #f5f5f5;
+
+    /* Semantische Farben */
+    -fx-success: #2e7d32;
+    -fx-success-bg: #e8f5e9;
+    -fx-warning: #f57c00;
+    -fx-warning-bg: #fff3e0;
+    -fx-error: #c62828;
+    -fx-error-bg: #ffebee;
+
+    /* Basis */
+    -fx-background: #fafafa;
+    -fx-base: #fafafa;
+    -fx-focus-color: #c82285;
+    -fx-faint-focus-color: rgba(200, 34, 133, 0.2);
+}
+
+/* ============================================
+   ALLGEMEINE STYLES
+   ============================================ */
+.root {
+    -fx-font-family: "Segoe UI", "Arial", sans-serif;
+    -fx-font-size: 14px;
+}
+
+/* ============================================
+   BUTTONS - Hierarchie
+   ============================================ */
+
+/* Basis Button Style */
+.button {
+    -fx-background-color: #f5f5f5;
+    -fx-text-fill: #333333;
+    -fx-background-radius: 6px;
+    -fx-border-radius: 6px;
+    -fx-border-color: #cccccc;
+    -fx-border-width: 1px;
+    -fx-padding: 8px 16px;
+    -fx-cursor: hand;
+}
+
+.button:hover {
+    -fx-background-color: #e6e6e6;
+    -fx-border-color: #999999;
+}
+
+.button:pressed {
+    -fx-background-color: #d9d9d9;
+}
+
+.button:focused {
+    -fx-border-color: #c82285;
+    -fx-border-width: 2px;
+}
+
+/* Primär Button (Hauptaktionen) */
+.btn-primary {
+    -fx-background-color: #7a1d21;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-border-color: #5a161a;
+    -fx-padding: 10px 24px;
+    -fx-font-size: 14px;
+}
+
+.btn-primary:hover {
+    -fx-background-color: #9a242a;
+    -fx-border-color: #7a1d21;
+}
+
+.btn-primary:pressed {
+    -fx-background-color: #5a161a;
+}
+
+/* Sekundär Button (Magenta) */
+.btn-secondary {
+    -fx-background-color: #c82285;
+    -fx-text-fill: white;
+    -fx-border-color: #a01b6b;
+    -fx-padding: 8px 20px;
+}
+
+.btn-secondary:hover {
+    -fx-background-color: #e02998;
+    -fx-border-color: #c82285;
+}
+
+.btn-secondary:pressed {
+    -fx-background-color: #a01b6b;
+}
+
+/* Akzent Button (Gelb) */
+.btn-accent {
+    -fx-background-color: #ffcc00;
+    -fx-text-fill: #333333;
+    -fx-font-weight: bold;
+    -fx-border-color: #e6b800;
+    -fx-padding: 8px 20px;
+}
+
+.btn-accent:hover {
+    -fx-background-color: #ffd633;
+    -fx-border-color: #ffcc00;
+}
+
+.btn-accent:pressed {
+    -fx-background-color: #e6b800;
+}
+
+/* Erfolg Button (Grün) */
+.btn-success {
+    -fx-background-color: #2e7d32;
+    -fx-text-fill: white;
+    -fx-border-color: #1b5e20;
+    -fx-padding: 8px 20px;
+}
+
+.btn-success:hover {
+    -fx-background-color: #388e3c;
+    -fx-border-color: #2e7d32;
+}
+
+.btn-success:pressed {
+    -fx-background-color: #1b5e20;
+}
+
+/* Gefahr Button (Rot) */
+.btn-danger {
+    -fx-background-color: #c62828;
+    -fx-text-fill: white;
+    -fx-border-color: #b71c1c;
+}
+
+.btn-danger:hover {
+    -fx-background-color: #e53935;
+    -fx-border-color: #c62828;
+}
+
+.btn-danger:pressed {
+    -fx-background-color: #b71c1c;
+}
+
+/* Outline Buttons (dezent) */
+.btn-outline {
+    -fx-background-color: transparent;
+    -fx-text-fill: #7a1d21;
+    -fx-border-color: #7a1d21;
+    -fx-border-width: 1px;
+}
+
+.btn-outline:hover {
+    -fx-background-color: #f9ecec;
+}
+
+.btn-outline-secondary {
+    -fx-background-color: transparent;
+    -fx-text-fill: #666666;
+    -fx-border-color: #cccccc;
+}
+
+.btn-outline-secondary:hover {
+    -fx-background-color: #f5f5f5;
+    -fx-border-color: #999999;
+}
+
+/* ============================================
+   KARTEN (Dashboard)
+   ============================================ */
+.card {
+    -fx-background-color: white;
+    -fx-background-radius: 12px;
+    -fx-border-radius: 12px;
+    -fx-border-color: #e6e6e6;
+    -fx-border-width: 1px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);
+    -fx-padding: 24px;
+}
+
+.card:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 12, 0, 0, 4);
+    -fx-border-color: #c82285;
+}
+
+.card-primary {
+    -fx-background-color: #f9ecec;
+    -fx-border-color: #7a1d21;
+}
+
+.card-secondary {
+    -fx-background-color: #fce4f0;
+    -fx-border-color: #c82285;
+}
+
+.card-accent {
+    -fx-background-color: #fff9e6;
+    -fx-border-color: #ffcc00;
+}
+
+/* ============================================
+   LABELS & TEXT
+   ============================================ */
+.title {
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #7a1d21;
+}
+
+.subtitle {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #333333;
+}
+
+.text-muted {
+    -fx-text-fill: #666666;
+}
+
+.text-primary {
+    -fx-text-fill: #7a1d21;
+}
+
+.text-secondary {
+    -fx-text-fill: #c82285;
+}
+
+.text-accent {
+    -fx-text-fill: #e6b800;
+}
+
+.text-large {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+}
+
+.card-value {
+    -fx-font-size: 36px;
+    -fx-font-weight: bold;
+}
+
+/* ============================================
+   TABS
+   ============================================ */
+.tab-pane .tab-header-area .tab-header-background {
+    -fx-background-color: #f5f5f5;
+}
+
+.tab-pane .tab {
+    -fx-background-color: transparent;
+    -fx-padding: 10px 20px;
+}
+
+.tab-pane .tab:selected {
+    -fx-background-color: white;
+}
+
+.tab-pane .tab .tab-label {
+    -fx-text-fill: #666666;
+    -fx-font-size: 14px;
+}
+
+.tab-pane .tab:selected .tab-label {
+    -fx-text-fill: #7a1d21;
+    -fx-font-weight: bold;
+}
+
+.tab-pane .tab:hover .tab-label {
+    -fx-text-fill: #c82285;
+}
+
+/* ============================================
+   TABELLEN
+   ============================================ */
+.table-view {
+    -fx-background-color: white;
+    -fx-border-color: #e6e6e6;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+}
+
+.table-view .column-header {
+    -fx-background-color: #f5f5f5;
+    -fx-border-color: #e6e6e6;
+    -fx-padding: 10px;
+}
+
+.table-view .column-header .label {
+    -fx-font-weight: bold;
+    -fx-text-fill: #333333;
+}
+
+.table-view .table-row-cell:selected {
+    -fx-background-color: #fce4f0;
+}
+
+.table-view .table-row-cell:hover {
+    -fx-background-color: #f9ecec;
+}
+
+/* ============================================
+   TEXTFELDER & INPUTS
+   ============================================ */
+.text-field, .text-area, .combo-box, .spinner {
+    -fx-background-color: white;
+    -fx-border-color: #cccccc;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-padding: 8px 12px;
+}
+
+.text-field:focused, .text-area:focused, .combo-box:focused, .spinner:focused {
+    -fx-border-color: #c82285;
+    -fx-border-width: 2px;
+}
+
+.text-field:hover, .text-area:hover, .combo-box:hover {
+    -fx-border-color: #999999;
+}
+
+/* ============================================
+   CHECKBOXEN
+   ============================================ */
+.check-box {
+    -fx-text-fill: #333333;
+}
+
+.check-box .box {
+    -fx-background-color: white;
+    -fx-border-color: #cccccc;
+    -fx-border-radius: 4px;
+    -fx-background-radius: 4px;
+}
+
+.check-box:hover .box {
+    -fx-border-color: #c82285;
+}
+
+.check-box:selected .box {
+    -fx-background-color: #c82285;
+    -fx-border-color: #c82285;
+}
+
+.check-box:selected .mark {
+    -fx-background-color: white;
+}
+
+/* ============================================
+   SCROLLPANE
+   ============================================ */
+.scroll-pane {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+}
+
+.scroll-bar {
+    -fx-background-color: #f5f5f5;
+}
+
+.scroll-bar .thumb {
+    -fx-background-color: #cccccc;
+    -fx-background-radius: 4px;
+}
+
+.scroll-bar .thumb:hover {
+    -fx-background-color: #999999;
+}
+
+/* ============================================
+   STATUSLEISTE
+   ============================================ */
+.status-bar {
+    -fx-background-color: #f5f5f5;
+    -fx-border-color: #e6e6e6;
+    -fx-border-width: 1 0 0 0;
+    -fx-padding: 8px 15px;
+}
+
+/* ============================================
+   MENÜLEISTE
+   ============================================ */
+.menu-bar {
+    -fx-background-color: #7a1d21;
+    -fx-padding: 0;
+}
+
+.menu-bar .menu {
+    -fx-background-color: transparent;
+}
+
+.menu-bar .menu .label {
+    -fx-text-fill: white;
+    -fx-padding: 8px 12px;
+}
+
+.menu-bar .menu:hover {
+    -fx-background-color: #9a242a;
+}
+
+.menu-bar .menu:showing {
+    -fx-background-color: #5a161a;
+}
+
+.context-menu {
+    -fx-background-color: white;
+    -fx-border-color: #e6e6e6;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 10, 0, 0, 3);
+}
+
+.menu-item {
+    -fx-padding: 8px 20px;
+}
+
+.menu-item:hover {
+    -fx-background-color: #f9ecec;
+}
+
+.menu-item:focused {
+    -fx-background-color: #fce4f0;
+}
+
+/* ============================================
+   SEPARATOREN
+   ============================================ */
+.separator {
+    -fx-padding: 10px 0;
+}
+
+.separator .line {
+    -fx-border-color: #e6e6e6;
+    -fx-border-width: 1px 0 0 0;
+}
+
+/* ============================================
+   PROGRESS BAR
+   ============================================ */
+.progress-bar {
+    -fx-background-color: #e6e6e6;
+    -fx-background-radius: 4px;
+}
+
+.progress-bar .bar {
+    -fx-background-color: linear-gradient(to right, #7a1d21, #c82285);
+    -fx-background-radius: 4px;
+}
+
+/* ============================================
+   TITLED PANE
+   ============================================ */
+.titled-pane > .title {
+    -fx-background-color: #f5f5f5;
+    -fx-border-color: #e6e6e6;
+    -fx-padding: 10px;
+}
+
+.titled-pane > .title:hover {
+    -fx-background-color: #f9ecec;
+}
+
+.titled-pane > .content {
+    -fx-background-color: white;
+    -fx-border-color: #e6e6e6;
+    -fx-border-width: 0 1 1 1;
+}
+
+/* ============================================
+   SPLIT PANE
+   ============================================ */
+.split-pane {
+    -fx-background-color: transparent;
+}
+
+.split-pane > .split-pane-divider {
+    -fx-background-color: #e6e6e6;
+    -fx-padding: 0 2px;
+}
+
+.split-pane > .split-pane-divider:hover {
+    -fx-background-color: #c82285;
+}
+
+/* ============================================
+   LEGENDE (Dienstarten)
+   ============================================ */
+.legend-24h {
+    -fx-background-color: #f9ecec;
+    -fx-border-color: #7a1d21;
+    -fx-padding: 5px 10px;
+    -fx-background-radius: 4px;
+    -fx-border-radius: 4px;
+}
+
+.legend-visten {
+    -fx-background-color: #fff9e6;
+    -fx-border-color: #e6b800;
+    -fx-padding: 5px 10px;
+    -fx-background-radius: 4px;
+    -fx-border-radius: 4px;
+}
+
+.legend-davinci {
+    -fx-background-color: #fce4f0;
+    -fx-border-color: #c82285;
+    -fx-padding: 5px 10px;
+    -fx-background-radius: 4px;
+    -fx-border-radius: 4px;
+}
+
+.legend-offen {
+    -fx-background-color: #ffebee;
+    -fx-border-color: #c62828;
+    -fx-padding: 5px 10px;
+    -fx-background-radius: 4px;
+    -fx-border-radius: 4px;
+}
+
+.legend-urlaub {
+    -fx-background-color: #f5f5f5;
+    -fx-border-color: #999999;
+    -fx-padding: 5px 10px;
+    -fx-background-radius: 4px;
+    -fx-border-radius: 4px;
+}
+
+/* ============================================
+   DIENST ZELLEN (Kalender)
+   ============================================ */
+.dienst-24h {
+    -fx-background-color: #f9ecec;
+    -fx-border-color: #7a1d21;
+    -fx-text-fill: #7a1d21;
+}
+
+.dienst-visten {
+    -fx-background-color: #fff9e6;
+    -fx-border-color: #e6b800;
+    -fx-text-fill: #806600;
+}
+
+.dienst-davinci {
+    -fx-background-color: #fce4f0;
+    -fx-border-color: #c82285;
+    -fx-text-fill: #c82285;
+}
+
+.dienst-offen {
+    -fx-background-color: #ffebee;
+    -fx-border-color: #c62828;
+    -fx-text-fill: #c62828;
+}
+
+/* ============================================
+   ALERTS / DIALOGE
+   ============================================ */
+.alert .button-bar .button {
+    -fx-min-width: 80px;
+}
+
+.dialog-pane {
+    -fx-background-color: white;
+}
+
+.dialog-pane .header-panel {
+    -fx-background-color: #7a1d21;
+}
+
+.dialog-pane .header-panel .label {
+    -fx-text-fill: white;
+}

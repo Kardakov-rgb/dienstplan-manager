@@ -89,67 +89,67 @@
    
    <center>
       <TabPane fx:id="mainTabPane" tabClosingPolicy="UNAVAILABLE">
-         
+
          <!-- Dashboard Tab -->
-         <Tab fx:id="dashboardTab" text="📊 Dashboard">
+         <Tab fx:id="dashboardTab" text="Dashboard">
             <ScrollPane fitToWidth="true">
-               <VBox spacing="20.0">
+               <VBox spacing="25.0">
                   <padding>
                      <Insets bottom="30.0" left="30.0" right="30.0" top="30.0" />
                   </padding>
                   
                   <!-- Willkommen-Bereich -->
-                  <VBox alignment="CENTER" spacing="15.0">
-                     <Label style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #2196F3;" 
-                            text="🏥 Dienstplan-Generator" />
-                     <Label style="-fx-font-size: 16px;" 
+                  <VBox alignment="CENTER" spacing="10.0">
+                     <Label styleClass="title" text="Dienstplan-Generator" />
+                     <Label styleClass="text-muted" style="-fx-font-size: 15px;"
                             text="Automatische Erstellung und Verwaltung von Dienstplänen" />
                   </VBox>
-                  
+
                   <Separator />
-                  
-                  <!-- Schnellzugriff-Karten -->
-                  <HBox alignment="CENTER" spacing="20.0">
-                     
+
+                  <!-- Schnellzugriff-Karten - 3 große Karten -->
+                  <HBox alignment="CENTER" spacing="30.0" VBox.vgrow="ALWAYS">
+
                      <!-- Personen-Karte -->
-                     <VBox alignment="CENTER" spacing="10.0" 
-                           style="-fx-background-color: #E8F5E8; -fx-padding: 20px; -fx-background-radius: 10px; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 2);">
-                        <Label style="-fx-font-size: 48px;" text="👥" />
-                        <Label style="-fx-font-size: 18px; -fx-font-weight: bold;" text="Personen" />
-                        <Label fx:id="dashboardPersonenAnzahl" style="-fx-font-size: 24px; -fx-text-fill: #4CAF50;" text="0" />
-                        <Button onAction="#onPersonenverwaltungOeffnen" 
-                                style="-fx-background-color: #4CAF50; -fx-text-fill: white;" 
+                     <VBox alignment="CENTER" spacing="15.0" prefWidth="280" prefHeight="220"
+                           styleClass="card"
+                           style="-fx-background-color: #f9ecec; -fx-border-color: #7a1d21;">
+                        <Label style="-fx-font-size: 56px;" text="👥" />
+                        <Label styleClass="subtitle" text="Personen" />
+                        <Label fx:id="dashboardPersonenAnzahl" styleClass="card-value" style="-fx-text-fill: #7a1d21;" text="0" />
+                        <Button onAction="#onPersonenverwaltungOeffnen"
+                                styleClass="btn-primary"
                                 text="Verwalten" />
                      </VBox>
-                     
+
                      <!-- Dienstpläne-Karte -->
-                     <VBox alignment="CENTER" spacing="10.0" 
-                           style="-fx-background-color: #E3F2FD; -fx-padding: 20px; -fx-background-radius: 10px; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 2);">
-                        <Label style="-fx-font-size: 48px;" text="📅" />
-                        <Label style="-fx-font-size: 18px; -fx-font-weight: bold;" text="Dienstpläne" />
-                        <Label fx:id="dashboardDienstplaeneAnzahl" style="-fx-font-size: 24px; -fx-text-fill: #2196F3;" text="0" />
-                        <Button onAction="#onDienstplanerstellungOeffnen" 
-                                style="-fx-background-color: #2196F3; -fx-text-fill: white;" 
+                     <VBox alignment="CENTER" spacing="15.0" prefWidth="280" prefHeight="220"
+                           styleClass="card"
+                           style="-fx-background-color: #fce4f0; -fx-border-color: #c82285;">
+                        <Label style="-fx-font-size: 56px;" text="📅" />
+                        <Label styleClass="subtitle" text="Dienstpläne" />
+                        <Label fx:id="dashboardDienstplaeneAnzahl" styleClass="card-value" style="-fx-text-fill: #c82285;" text="0" />
+                        <Button onAction="#onDienstplanerstellungOeffnen"
+                                styleClass="btn-secondary"
                                 text="Erstellen" />
                      </VBox>
-                     
-                     <!-- Dienste-Karte -->
-                     <VBox alignment="CENTER" spacing="10.0" 
-                           style="-fx-background-color: #FFF3E0; -fx-padding: 20px; -fx-background-radius: 10px; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 2);">
-                        <Label style="-fx-font-size: 48px;" text="⏰" />
-                        <Label style="-fx-font-size: 18px; -fx-font-weight: bold;" text="Dienste" />
-                        <Label fx:id="dashboardDiensteAnzahl" style="-fx-font-size: 24px; -fx-text-fill: #FF9800;" text="0" />
-                        <Button onAction="#onStatistikenOeffnen" 
-                                style="-fx-background-color: #FF9800; -fx-text-fill: white;" 
-                                text="Statistiken" />
+
+                     <!-- Statistik-Karte -->
+                     <VBox alignment="CENTER" spacing="15.0" prefWidth="280" prefHeight="220"
+                           styleClass="card"
+                           style="-fx-background-color: #fff9e6; -fx-border-color: #e6b800;">
+                        <Label style="-fx-font-size: 56px;" text="📊" />
+                        <Label styleClass="subtitle" text="Statistiken" />
+                        <Label fx:id="dashboardDiensteAnzahl" styleClass="card-value" style="-fx-text-fill: #806600;" text="0" />
+                        <Button onAction="#onStatistikenOeffnen"
+                                styleClass="btn-accent"
+                                text="Anzeigen" />
                      </VBox>
                   </HBox>
                   
-                  <Separator />
-                  
                   <!-- Aktuelle Aktivitäten - AUSGEBLENDET -->
                   <VBox spacing="15.0" visible="false" managed="false">
-                     <Label style="-fx-font-size: 20px; -fx-font-weight: bold;" text="📋 Aktuelle Übersicht" />
+                     <Label style="-fx-font-size: 20px; -fx-font-weight: bold;" text="Aktuelle Übersicht" />
 
                      <GridPane hgap="30.0" vgap="15.0">
                         <columnConstraints>
@@ -159,39 +159,37 @@
 
                         <!-- Letzte Aktivitäten -->
                         <VBox spacing="10.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
-                           <Label style="-fx-font-size: 16px; -fx-font-weight: bold;" text="📝 Letzte Aktivitäten" />
+                           <Label style="-fx-font-size: 16px; -fx-font-weight: bold;" text="Letzte Aktivitäten" />
                            <ListView fx:id="aktivitaetenList" prefHeight="200.0" />
                         </VBox>
 
                         <!-- Nächste Termine/Aufgaben -->
                         <VBox spacing="10.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                           <Label style="-fx-font-size: 16px; -fx-font-weight: bold;" text="⚠️ Benötigt Aufmerksamkeit" />
+                           <Label style="-fx-font-size: 16px; -fx-font-weight: bold;" text="Benötigt Aufmerksamkeit" />
                            <ListView fx:id="aufgabenList" prefHeight="200.0" />
                         </VBox>
                      </GridPane>
                   </VBox>
-
-                  <Separator visible="false" managed="false" />
                   
-                  <!-- Schnellstatistiken -->
-                  <VBox spacing="15.0">
-                     <Label style="-fx-font-size: 20px; -fx-font-weight: bold;" text="📈 System-Status" />
-                     
+                  <!-- Schnellstatistiken - AUSGEBLENDET -->
+                  <VBox spacing="15.0" visible="false" managed="false">
+                     <Label style="-fx-font-size: 20px; -fx-font-weight: bold;" text="System-Status" />
+
                      <GridPane hgap="20.0" vgap="10.0">
                         <columnConstraints>
                            <ColumnConstraints minWidth="150.0" />
                            <ColumnConstraints hgrow="ALWAYS" />
                         </columnConstraints>
-                        
+
                         <Label text="Datenbank:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                        <Label fx:id="datenbankStatusLabel" style="-fx-text-fill: green;" text="✅ Verbunden" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-                        
+                        <Label fx:id="datenbankStatusLabel" style="-fx-text-fill: green;" text="Verbunden" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
                         <Label text="Datenbankgröße:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
                         <Label fx:id="datenbankGroesseLabel" text="Laden..." GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                        
+
                         <Label text="Letzte Sicherung:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
                         <Label fx:id="letzteSicherungLabel" text="Nie" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                        
+
                         <Label text="Anwendungsversion:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
                         <Label fx:id="versionLabel" text="1.0.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                      </GridPane>
@@ -201,17 +199,17 @@
          </Tab>
          
          <!-- Personenverwaltung Tab -->
-         <Tab fx:id="personenverwaltungTab" text="👥 Personen">
+         <Tab fx:id="personenverwaltungTab" text="Personen">
             <fx:include fx:id="personenverwaltungView" source="personenverwaltung.fxml" />
          </Tab>
-         
+
          <!-- Dienstplanerstellung Tab -->
-         <Tab fx:id="dienstplanerstellungTab" text="📅 Dienstpläne">
+         <Tab fx:id="dienstplanerstellungTab" text="Dienstpläne">
             <fx:include fx:id="dienstplanerstellungView" source="dienstplanerstellung.fxml" />
          </Tab>
-         
+
          <!-- Statistiken Tab -->
-         <Tab fx:id="statistikenTab" text="📊 Statistiken">
+         <Tab fx:id="statistikenTab" text="Statistiken">
             <fx:include fx:id="statistikenView" source="statistiken.fxml" />
          </Tab>
          
@@ -219,27 +217,27 @@
    </center>
    
    <bottom>
-      <HBox fx:id="statusLeiste" alignment="CENTER_LEFT" spacing="15.0">
+      <HBox fx:id="statusLeiste" alignment="CENTER_LEFT" spacing="15.0" styleClass="status-bar">
          <padding>
             <Insets bottom="8.0" left="15.0" right="15.0" top="8.0" />
          </padding>
-         
-         <Label fx:id="hauptStatusLabel" text="Dienstplan-Generator bereit" />
-         
+
+         <Label fx:id="hauptStatusLabel" text="Bereit" styleClass="text-muted" />
+
          <!-- Spacer -->
          <Region HBox.hgrow="ALWAYS" />
-         
+
          <Separator orientation="VERTICAL" />
-         
-         <Label fx:id="personenStatusLabel" text="0 Personen" />
-         
+
+         <Label fx:id="personenStatusLabel" text="0 Personen" styleClass="text-muted" />
+
          <Separator orientation="VERTICAL" />
-         
-         <Label fx:id="dienstplaeneStatusLabel" text="0 Dienstpläne" />
-         
+
+         <Label fx:id="dienstplaeneStatusLabel" text="0 Dienstpläne" styleClass="text-muted" />
+
          <Separator orientation="VERTICAL" />
-         
-         <Label fx:id="uhrzeitLabel" text="Laden..." />
+
+         <Label fx:id="uhrzeitLabel" text="--:--" styleClass="text-muted" />
       </HBox>
    </bottom>
 </BorderPane>

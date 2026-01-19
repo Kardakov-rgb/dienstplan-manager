@@ -12,15 +12,15 @@
          </padding>
          
          <!-- Überschrift -->
-         <Label style="-fx-font-size: 24px; -fx-font-weight: bold;" text="Personenverwaltung" />
-         
+         <Label styleClass="title" style="-fx-font-size: 22px;" text="Personenverwaltung" />
+
          <!-- Suchbereich -->
          <HBox alignment="CENTER_LEFT" spacing="10.0">
             <TextField fx:id="suchfeld" promptText="Name suchen..." prefWidth="200.0" />
-            <Button fx:id="suchenButton" onAction="#onSuchen" text="Suchen" />
-            <Button fx:id="alleAnzeigenButton" onAction="#onAlleAnzeigen" text="Alle anzeigen" />
+            <Button fx:id="suchenButton" onAction="#onSuchen" styleClass="btn-outline-secondary" text="Suchen" />
+            <Button fx:id="alleAnzeigenButton" onAction="#onAlleAnzeigen" styleClass="btn-outline-secondary" text="Alle" />
             <Region HBox.hgrow="ALWAYS" />
-            <Button fx:id="neuePersonButton" onAction="#onNeuePersonErstellen" style="-fx-background-color: #4CAF50; -fx-text-fill: white;" text="+ Neue Person" />
+            <Button fx:id="neuePersonButton" onAction="#onNeuePersonErstellen" styleClass="btn-primary" text="+ Neue Person" />
          </HBox>
       </VBox>
    </top>
@@ -50,10 +50,10 @@
             
             <!-- Buttons für Personenliste -->
             <HBox spacing="10.0">
-               <Button fx:id="bearbeitenButton" disable="true" onAction="#onPersonBearbeiten" text="Bearbeiten" />
-               <Button fx:id="loeschenButton" disable="true" onAction="#onPersonLoeschen" style="-fx-background-color: #f44336; -fx-text-fill: white;" text="Löschen" />
+               <Button fx:id="bearbeitenButton" disable="true" onAction="#onPersonBearbeiten" styleClass="btn-outline-secondary" text="Bearbeiten" />
+               <Button fx:id="loeschenButton" disable="true" onAction="#onPersonLoeschen" styleClass="btn-danger" text="Löschen" />
                <Region HBox.hgrow="ALWAYS" />
-               <Label fx:id="anzahlLabel" text="0 Personen" />
+               <Label fx:id="anzahlLabel" styleClass="text-muted" text="0 Personen" />
             </HBox>
          </VBox>
          
@@ -89,41 +89,74 @@
                   <Separator />
                   
                   <!-- Arbeitstage -->
-                  <VBox spacing="8.0">
-                     <Label style="-fx-font-weight: bold;" text="Arbeitstage" />
-                     
-                     <VBox spacing="5.0">
-                        <CheckBox fx:id="montagCheck" text="Montag" />
-                        <CheckBox fx:id="dienstagCheck" text="Dienstag" />
-                        <CheckBox fx:id="mittwochCheck" text="Mittwoch" />
-                        <CheckBox fx:id="donnerstagCheck" text="Donnerstag" />
-                        <CheckBox fx:id="freitagCheck" text="Freitag" />
-                        <CheckBox fx:id="samstagCheck" text="Samstag" />
-                        <CheckBox fx:id="sonntagCheck" text="Sonntag" />
-                     </VBox>
-                     
-                     <HBox spacing="10.0">
-                        <Button fx:id="alleWochentagButton" onAction="#onAlleWochentageWaehlen" text="Alle wählen" />
-                        <Button fx:id="keineWochentagButton" onAction="#onKeineWochentageWaehlen" text="Keine wählen" />
-                        <Button fx:id="wocheButton" onAction="#onWocheWaehlen" text="Mo-Fr" />
+                  <VBox spacing="10.0">
+                     <Label styleClass="subtitle" style="-fx-font-size: 14px;" text="Arbeitstage" />
+
+                     <!-- Wochentage in einer Reihe -->
+                     <HBox spacing="8.0" alignment="CENTER_LEFT">
+                        <VBox alignment="CENTER" spacing="2.0" prefWidth="45">
+                           <Label text="Mo" styleClass="text-muted" style="-fx-font-size: 11px;" />
+                           <CheckBox fx:id="montagCheck" />
+                        </VBox>
+                        <VBox alignment="CENTER" spacing="2.0" prefWidth="45">
+                           <Label text="Di" styleClass="text-muted" style="-fx-font-size: 11px;" />
+                           <CheckBox fx:id="dienstagCheck" />
+                        </VBox>
+                        <VBox alignment="CENTER" spacing="2.0" prefWidth="45">
+                           <Label text="Mi" styleClass="text-muted" style="-fx-font-size: 11px;" />
+                           <CheckBox fx:id="mittwochCheck" />
+                        </VBox>
+                        <VBox alignment="CENTER" spacing="2.0" prefWidth="45">
+                           <Label text="Do" styleClass="text-muted" style="-fx-font-size: 11px;" />
+                           <CheckBox fx:id="donnerstagCheck" />
+                        </VBox>
+                        <VBox alignment="CENTER" spacing="2.0" prefWidth="45">
+                           <Label text="Fr" styleClass="text-muted" style="-fx-font-size: 11px;" />
+                           <CheckBox fx:id="freitagCheck" />
+                        </VBox>
+                        <VBox alignment="CENTER" spacing="2.0" prefWidth="45">
+                           <Label text="Sa" styleClass="text-muted" style="-fx-font-size: 11px;" />
+                           <CheckBox fx:id="samstagCheck" />
+                        </VBox>
+                        <VBox alignment="CENTER" spacing="2.0" prefWidth="45">
+                           <Label text="So" styleClass="text-muted" style="-fx-font-size: 11px;" />
+                           <CheckBox fx:id="sonntagCheck" />
+                        </VBox>
+                     </HBox>
+
+                     <HBox spacing="8.0">
+                        <Button fx:id="alleWochentagButton" onAction="#onAlleWochentageWaehlen"
+                                styleClass="btn-outline-secondary" style="-fx-font-size: 12px; -fx-padding: 5 10;"
+                                text="Alle" />
+                        <Button fx:id="keineWochentagButton" onAction="#onKeineWochentageWaehlen"
+                                styleClass="btn-outline-secondary" style="-fx-font-size: 12px; -fx-padding: 5 10;"
+                                text="Keine" />
+                        <Button fx:id="wocheButton" onAction="#onWocheWaehlen"
+                                styleClass="btn-outline-secondary" style="-fx-font-size: 12px; -fx-padding: 5 10;"
+                                text="Mo-Fr" />
                      </HBox>
                   </VBox>
-                  
+
                   <Separator />
-                  
+
                   <!-- Dienstarten -->
-                  <VBox spacing="8.0">
-                     <Label style="-fx-font-weight: bold;" text="Verfügbare Dienstarten" />
-                     
-                     <VBox spacing="5.0">
-                        <CheckBox fx:id="dienst24hCheck" text="24h Dienst" />
+                  <VBox spacing="10.0">
+                     <Label styleClass="subtitle" style="-fx-font-size: 14px;" text="Verfügbare Dienstarten" />
+
+                     <!-- Dienstarten horizontal -->
+                     <HBox spacing="20.0" alignment="CENTER_LEFT">
+                        <CheckBox fx:id="dienst24hCheck" text="24h" />
                         <CheckBox fx:id="vistenCheck" text="Visten" />
-                        <CheckBox fx:id="davinciCheck" text="DaVinci (nur freitags)" />
-                     </VBox>
-                     
-                     <HBox spacing="10.0">
-                        <Button fx:id="alleDienstartButton" onAction="#onAlleDienstartenWaehlen" text="Alle wählen" />
-                        <Button fx:id="keineDienstartButton" onAction="#onKeineDienstartenWaehlen" text="Keine wählen" />
+                        <CheckBox fx:id="davinciCheck" text="DaVinci" />
+                     </HBox>
+
+                     <HBox spacing="8.0">
+                        <Button fx:id="alleDienstartButton" onAction="#onAlleDienstartenWaehlen"
+                                styleClass="btn-outline-secondary" style="-fx-font-size: 12px; -fx-padding: 5 10;"
+                                text="Alle" />
+                        <Button fx:id="keineDienstartButton" onAction="#onKeineDienstartenWaehlen"
+                                styleClass="btn-outline-secondary" style="-fx-font-size: 12px; -fx-padding: 5 10;"
+                                text="Keine" />
                      </HBox>
                   </VBox>
                   
@@ -135,10 +168,10 @@
             
             <!-- Aktionsbuttons -->
             <HBox spacing="10.0">
-               <Button fx:id="speichernButton" disable="true" onAction="#onSpeichern" style="-fx-background-color: #2196F3; -fx-text-fill: white;" text="Speichern" />
-               <Button fx:id="abbrechenButton" onAction="#onAbbrechen" text="Abbrechen" />
+               <Button fx:id="speichernButton" disable="true" onAction="#onSpeichern" styleClass="btn-secondary" text="Speichern" />
+               <Button fx:id="abbrechenButton" onAction="#onAbbrechen" styleClass="btn-outline-secondary" text="Abbrechen" />
                <Region HBox.hgrow="ALWAYS" />
-               <Button fx:id="zuruecksetzenButton" disable="true" onAction="#onZuruecksetzen" text="Zurücksetzen" />
+               <Button fx:id="zuruecksetzenButton" disable="true" onAction="#onZuruecksetzen" styleClass="btn-outline-secondary" text="Zurücksetzen" />
             </HBox>
          </VBox>
       </SplitPane>

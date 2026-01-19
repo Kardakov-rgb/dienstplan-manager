@@ -28,12 +28,12 @@ public class Main extends Application {
             
             // Scene erstellen
             Scene scene = new Scene(loader.load(), 1400, 900);
-            
+
             // Controller für Shutdown speichern
             hauptfensterController = loader.getController();
-            
-            // Optional: CSS-Stylesheet hinzufügen
-            // scene.getStylesheets().add(getClass().getResource("/css/application.css").toExternalForm());
+
+            // CSS-Stylesheet hinzufügen
+            scene.getStylesheets().add(getClass().getResource("/css/styles.css").toExternalForm());
             
             // Stage konfigurieren
             primaryStage.setTitle("🏥 Dienstplan-Generator v1.0.0 - Automatische Dienstplanerstellung");
