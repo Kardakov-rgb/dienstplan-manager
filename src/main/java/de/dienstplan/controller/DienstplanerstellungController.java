@@ -50,8 +50,6 @@ public class DienstplanerstellungController implements Initializable {
     @FXML private Button excelImportButton;
     
     // FXML Controls - Status
-    @FXML private Label statusLabel;
-    @FXML private Label statistikLabel;
     @FXML private VBox warnungenPanel;
     @FXML private ListView<String> warnungenList;
     
@@ -884,10 +882,7 @@ public class DienstplanerstellungController implements Initializable {
         zugewiesenLabel.setText(String.valueOf(zugewiesen));
         offenLabel.setText(String.valueOf(offen));
         zuweisungsgradBar.setProgress(zuweisungsgrad);
-        
-        statistikLabel.setText(String.format("Zuweisungsgrad: %.1f%% (%d/%d)", 
-                                           zuweisungsgrad * 100, zugewiesen, gesamt));
-        
+
         // Person-Statistiken
         updatePersonStatistiken();
     }
@@ -935,7 +930,6 @@ personStatistikListe.sort((a, b) -> Integer.compare(b.gesamtDienste.get(), a.ges
         zugewiesenLabel.setText("0");
         offenLabel.setText("0");
         zuweisungsgradBar.setProgress(0);
-        statistikLabel.setText("");
         personStatistikListe.clear();
     }
     
@@ -969,7 +963,6 @@ personStatistikListe.sort((a, b) -> Integer.compare(b.gesamtDienste.get(), a.ges
     }
     
     private void setStatus(String message) {
-        statusLabel.setText(message);
         bottomStatusLabel.setText(message);
         logger.debug("Status: {}", message);
     }
