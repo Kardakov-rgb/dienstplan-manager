@@ -36,7 +36,7 @@
             <!-- Abdeckungsgrad -->
             <VBox alignment="CENTER" spacing="4.0" prefWidth="160.0"
                   style="-fx-background-color: #f9ecec; -fx-padding: 10px; -fx-background-radius: 8px; -fx-border-color: #7a1d21; -fx-border-radius: 8px;">
-                <Label style="-fx-font-size: 12px; -fx-text-fill: #666;" text="Abdeckungsgrad" />
+                <Label style="-fx-font-size: 12px; -fx-text-fill: #7a1d21;" text="Abdeckungsgrad" />
                 <Label fx:id="abdeckungsgradLabel" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #7a1d21;" text="0%" />
                 <ProgressBar fx:id="abdeckungsgradBar" prefWidth="130.0" progress="0.0" />
             </VBox>
@@ -44,25 +44,25 @@
             <!-- Offene Dienste -->
             <VBox alignment="CENTER" spacing="4.0" prefWidth="160.0"
                   style="-fx-background-color: #fff9e6; -fx-padding: 10px; -fx-background-radius: 8px; -fx-border-color: #e6b800; -fx-border-radius: 8px;">
-                <Label style="-fx-font-size: 12px; -fx-text-fill: #666;" text="Offene Dienste" />
+                <Label style="-fx-font-size: 12px; -fx-text-fill: #806600;" text="Offene Dienste" />
                 <Label fx:id="offeneDiensteLabel" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #806600;" text="0" />
-                <Label fx:id="offeneDiensteDetailLabel" style="-fx-font-size: 11px; -fx-text-fill: #888;" text="von 0 gesamt" />
+                <Label fx:id="offeneDiensteDetailLabel" style="-fx-font-size: 11px; -fx-text-fill: #806600;" text="von 0 gesamt" />
             </VBox>
 
             <!-- Durchschn. Wunscherfüllung -->
             <VBox alignment="CENTER" spacing="4.0" prefWidth="160.0"
                   style="-fx-background-color: #fce4f0; -fx-padding: 10px; -fx-background-radius: 8px; -fx-border-color: #c82285; -fx-border-radius: 8px;">
-                <Label style="-fx-font-size: 12px; -fx-text-fill: #666;" text="Wunscherfüllung" />
+                <Label style="-fx-font-size: 12px; -fx-text-fill: #c82285;" text="Wunscherfüllung" />
                 <Label fx:id="wunscherfuellungLabel" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #c82285;" text="0%" />
-                <Label fx:id="wunscherfuellungDetailLabel" style="-fx-font-size: 11px; -fx-text-fill: #888;" text="Durchschnitt" />
+                <Label fx:id="wunscherfuellungDetailLabel" style="-fx-font-size: 11px; -fx-text-fill: #c82285;" text="Durchschnitt" />
             </VBox>
 
             <!-- Konflikte -->
             <VBox alignment="CENTER" spacing="4.0" prefWidth="160.0"
                   style="-fx-background-color: #ffebee; -fx-padding: 10px; -fx-background-radius: 8px; -fx-border-color: #c62828; -fx-border-radius: 8px;">
-                <Label style="-fx-font-size: 12px; -fx-text-fill: #666;" text="Konflikte" />
+                <Label style="-fx-font-size: 12px; -fx-text-fill: #c62828;" text="Konflikte" />
                 <Label fx:id="konflikteLabel" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #c62828;" text="0" />
-                <Label fx:id="konflikteDetailLabel" style="-fx-font-size: 11px; -fx-text-fill: #888;" text="Doppelbelegungen" />
+                <Label fx:id="konflikteDetailLabel" style="-fx-font-size: 11px; -fx-text-fill: #c62828;" text="Doppelbelegungen" />
             </VBox>
         </HBox>
 

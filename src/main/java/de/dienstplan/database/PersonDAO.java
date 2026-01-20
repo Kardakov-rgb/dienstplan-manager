@@ -201,7 +201,22 @@ public Optional<Person> findById(Long id) throws SQLException {
             return deleted;
         }
     }
-    
+
+    /**
+     * Löscht alle Personen aus der Datenbank
+     */
+    public int deleteAll() throws SQLException {
+        String sql = "DELETE FROM person";
+
+        try (Connection conn = DatabaseManager.createConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            int affectedRows = stmt.executeUpdate();
+            logger.info("Alle Personen gelöscht: {} Einträge", affectedRows);
+            return affectedRows;
+        }
+    }
+
     /**
      * Sucht Personen anhand verschiedener Kriterien
      */

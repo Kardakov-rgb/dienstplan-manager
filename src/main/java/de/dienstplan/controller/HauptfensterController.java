@@ -219,43 +219,55 @@ public class HauptfensterController implements Initializable {
     
     @FXML
     private void onAllePersonenLoeschen() {
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-        confirm.setTitle("Alle Personen löschen");
-        confirm.setHeaderText("Möchten Sie wirklich alle Personen löschen?");
-        confirm.setContentText("WARNUNG: Diese Aktion kann nicht rückgängig gemacht werden!");
-        
-        if (confirm.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK) {
-            try {
-                // TODO: Implementiere über PersonDAO
-                addAktivitaet("🗑️ Alle Personen gelöscht");
-                updateDashboard();
-                setHauptStatus("Alle Personen wurden gelöscht");
-                
-            } catch (Exception e) {
-                logger.error("Fehler beim Löschen aller Personen", e);
-                showError("Fehler", "Die Personen konnten nicht gelöscht werden.", e);
+        try {
+            int anzahl = personDAO.count();
+            if (anzahl == 0) {
+                showInfo("Keine Personen", "Es sind keine Personen zum Löschen vorhanden.");
+                return;
             }
+
+            Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+            confirm.setTitle("Alle Personen löschen");
+            confirm.setHeaderText("Möchten Sie wirklich alle " + anzahl + " Personen löschen?");
+            confirm.setContentText("WARNUNG: Diese Aktion kann nicht rückgängig gemacht werden!");
+
+            if (confirm.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK) {
+                int geloescht = personDAO.deleteAll();
+                addAktivitaet("🗑️ " + geloescht + " Personen gelöscht");
+                updateDashboard();
+                setHauptStatus(geloescht + " Personen wurden gelöscht");
+                showInfo("Erfolgreich", geloescht + " Personen wurden gelöscht.");
+            }
+        } catch (SQLException e) {
+            logger.error("Fehler beim Löschen aller Personen", e);
+            showError("Fehler", "Die Personen konnten nicht gelöscht werden.", e);
         }
     }
-    
+
     @FXML
     private void onAlleDienstplaeneLoeschen() {
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-        confirm.setTitle("Alle Dienstpläne löschen");
-        confirm.setHeaderText("Möchten Sie wirklich alle Dienstpläne löschen?");
-        confirm.setContentText("WARNUNG: Diese Aktion kann nicht rückgängig gemacht werden!");
-        
-        if (confirm.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK) {
-            try {
-                // TODO: Implementiere über DienstplanDAO
-                addAktivitaet("🗑️ Alle Dienstpläne gelöscht");
-                updateDashboard();
-                setHauptStatus("Alle Dienstpläne wurden gelöscht");
-                
-            } catch (Exception e) {
-                logger.error("Fehler beim Löschen aller Dienstpläne", e);
-                showError("Fehler", "Die Dienstpläne konnten nicht gelöscht werden.", e);
+        try {
+            int anzahl = dienstplanDAO.count();
+            if (anzahl == 0) {
+                showInfo("Keine Dienstpläne", "Es sind keine Dienstpläne zum Löschen vorhanden.");
+                return;
             }
+
+            Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+            confirm.setTitle("Alle Dienstpläne löschen");
+            confirm.setHeaderText("Möchten Sie wirklich alle " + anzahl + " Dienstpläne löschen?");
+            confirm.setContentText("WARNUNG: Diese Aktion kann nicht rückgängig gemacht werden!");
+
+            if (confirm.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK) {
+                int geloescht = dienstplanDAO.deleteAll();
+                addAktivitaet("🗑️ " + geloescht + " Dienstpläne gelöscht");
+                updateDashboard();
+                setHauptStatus(geloescht + " Dienstpläne wurden gelöscht");
+                showInfo("Erfolgreich", geloescht + " Dienstpläne wurden gelöscht.");
+            }
+        } catch (SQLException e) {
+            logger.error("Fehler beim Löschen aller Dienstpläne", e);
+            showError("Fehler", "Die Dienstpläne konnten nicht gelöscht werden.", e);
         }
     }
     

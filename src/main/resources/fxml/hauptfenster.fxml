@@ -10,8 +10,6 @@
          <!-- Menüleiste -->
          <MenuBar fx:id="menuBar">
             <Menu text="Datei">
-               <MenuItem fx:id="neuMenuItem" onAction="#onNeueDaten" text="Neue Daten..." />
-               <SeparatorMenuItem />
                <MenuItem fx:id="importMenuItem" onAction="#onImport" text="Importieren..." />
                <MenuItem fx:id="exportMenuItem" onAction="#onExport" text="Exportieren..." />
                <SeparatorMenuItem />
@@ -21,26 +19,13 @@
             </Menu>
             
             <Menu text="Bearbeiten">
-               <MenuItem fx:id="personHinzufuegenMenuItem" onAction="#onNeuePersonHinzufuegen" text="Neue Person..." />
-               <MenuItem fx:id="dienstplanErstellenMenuItem" onAction="#onNeuerDienstplan" text="Neuer Dienstplan..." />
-               <SeparatorMenuItem />
                <MenuItem fx:id="allePersonenLoeschenMenuItem" onAction="#onAllePersonenLoeschen" text="Alle Personen löschen" />
                <MenuItem fx:id="alleDienstplaeneLoeschenMenuItem" onAction="#onAlleDienstplaeneLoeschen" text="Alle Dienstpläne löschen" />
-            </Menu>
-            
-            <Menu text="Ansicht">
-               <CheckMenuItem fx:id="statusleisteMenuItem" onAction="#onStatusleisteToggle" selected="true" text="Statusleiste" />
-               <CheckMenuItem fx:id="toolbarMenuItem" onAction="#onToolbarToggle" selected="true" text="Toolbar" />
-               <SeparatorMenuItem />
-               <MenuItem fx:id="vollbildMenuItem" onAction="#onVollbild" text="Vollbild" />
             </Menu>
             
             <Menu text="Extras">
                <MenuItem fx:id="datenbankInfoMenuItem" onAction="#onDatenbankInfo" text="Datenbank-Informationen" />
                <MenuItem fx:id="testdatenMenuItem" onAction="#onTestdatenErstellen" text="Testdaten erstellen" />
-               <MenuItem fx:id="datenbankBackupMenuItem" onAction="#onDatenbankBackup" text="Datenbank-Backup" />
-               <SeparatorMenuItem />
-               <MenuItem fx:id="logAnzeigenMenuItem" onAction="#onLogAnzeigen" text="Log anzeigen" />
             </Menu>
             
             <Menu text="Hilfe">
@@ -113,7 +98,7 @@
                      <VBox alignment="CENTER" spacing="8.0" prefWidth="200" prefHeight="160"
                            styleClass="card"
                            style="-fx-background-color: #f9ecec; -fx-border-color: #7a1d21;">
-                        <Label style="-fx-font-size: 36px; -fx-text-fill: #7a1d21;" text="⬤⬤" />
+                        <Label style="-fx-font-size: 36px;" text="👥" />
                         <Label styleClass="subtitle" text="Personen" />
                         <Label fx:id="dashboardPersonenAnzahl" styleClass="card-value" style="-fx-text-fill: #7a1d21;" text="0" />
                         <Button onAction="#onPersonenverwaltungOeffnen"
@@ -125,7 +110,7 @@
                      <VBox alignment="CENTER" spacing="8.0" prefWidth="200" prefHeight="160"
                            styleClass="card"
                            style="-fx-background-color: #fce4f0; -fx-border-color: #c82285;">
-                        <Label style="-fx-font-size: 36px; -fx-text-fill: #c82285;" text="▦" />
+                        <Label style="-fx-font-size: 36px;" text="📅" />
                         <Label styleClass="subtitle" text="Dienstpläne" />
                         <Label fx:id="dashboardDienstplaeneAnzahl" styleClass="card-value" style="-fx-text-fill: #c82285;" text="0" />
                         <Button onAction="#onDienstplanerstellungOeffnen"
@@ -137,7 +122,7 @@
                      <VBox alignment="CENTER" spacing="8.0" prefWidth="200" prefHeight="160"
                            styleClass="card"
                            style="-fx-background-color: #fff9e6; -fx-border-color: #e6b800;">
-                        <Label style="-fx-font-size: 36px; -fx-text-fill: #806600;" text="▤" />
+                        <Label style="-fx-font-size: 36px;" text="📊" />
                         <Label styleClass="subtitle" text="Statistiken" />
                         <Label fx:id="dashboardDiensteAnzahl" styleClass="card-value" style="-fx-text-fill: #806600;" text="0" />
                         <Button onAction="#onStatistikenOeffnen"

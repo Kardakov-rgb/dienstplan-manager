@@ -349,7 +349,22 @@ public class DienstplanDAO {
             return deleted;
         }
     }
-    
+
+    /**
+     * Löscht alle Dienstpläne aus der Datenbank
+     */
+    public int deleteAll() throws SQLException {
+        String sql = "DELETE FROM dienstplan";
+
+        try (Connection conn = DatabaseManager.createConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            int affectedRows = stmt.executeUpdate();
+            logger.info("Alle Dienstpläne gelöscht: {} Einträge", affectedRows);
+            return affectedRows;
+        }
+    }
+
     /**
      * Prüft ob ein Dienstplan für Name/Monat bereits existiert
      */

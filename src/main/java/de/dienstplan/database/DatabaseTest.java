@@ -131,16 +131,16 @@ public class DatabaseTest {
     }
 
     /**
-     * Erstellt Testdaten für die Anwendung
+     * Erstellt Testdaten für die Anwendung - 15 realistische deutsche Personen
      */
     public static void createTestData() throws SQLException {
         logger.info("Erstelle Testdaten...");
 
         PersonDAO personDAO = new PersonDAO();
 
-        // Verschiedene Test-Personen erstellen
+        // 15 realistische deutsche Personen mit verschiedenen Arbeitstagen und Dienstarten
         Person[] testPersonen = {
-            createTestPerson("Dr. Sarah Weber", 25,
+            createTestPerson("Dr. Sarah Weber", 22,
                            EnumSet.of(Wochentag.MONTAG, Wochentag.DIENSTAG, Wochentag.MITTWOCH, Wochentag.DONNERSTAG, Wochentag.FREITAG),
                            EnumSet.of(DienstArt.DIENST_24H, DienstArt.VISTEN)),
 
@@ -148,13 +148,57 @@ public class DatabaseTest {
                            EnumSet.of(Wochentag.DIENSTAG, Wochentag.MITTWOCH, Wochentag.DONNERSTAG, Wochentag.FREITAG, Wochentag.SAMSTAG),
                            EnumSet.of(DienstArt.DAVINCI, DienstArt.VISTEN)),
 
-            createTestPerson("Lisa Müller", 22,
+            createTestPerson("Lisa Müller", 18,
                            EnumSet.of(Wochentag.MONTAG, Wochentag.MITTWOCH, Wochentag.FREITAG),
                            EnumSet.of(DienstArt.DIENST_24H, DienstArt.DAVINCI, DienstArt.VISTEN)),
 
-            createTestPerson("Thomas Klein", 18,
-                           EnumSet.of(Wochentag.MONTAG, Wochentag.DIENSTAG, Wochentag.DONNERSTAG),
-                           EnumSet.of(DienstArt.DAVINCI))
+            createTestPerson("Thomas Klein", 24,
+                           EnumSet.of(Wochentag.MONTAG, Wochentag.DIENSTAG, Wochentag.DONNERSTAG, Wochentag.FREITAG),
+                           EnumSet.of(DienstArt.DAVINCI)),
+
+            createTestPerson("Anna Schmidt", 21,
+                           EnumSet.of(Wochentag.MONTAG, Wochentag.DIENSTAG, Wochentag.MITTWOCH, Wochentag.DONNERSTAG),
+                           EnumSet.of(DienstArt.DIENST_24H, DienstArt.VISTEN)),
+
+            createTestPerson("Dr. Markus Wagner", 25,
+                           EnumSet.of(Wochentag.MONTAG, Wochentag.DIENSTAG, Wochentag.MITTWOCH, Wochentag.DONNERSTAG, Wochentag.FREITAG, Wochentag.SAMSTAG),
+                           EnumSet.of(DienstArt.DIENST_24H, DienstArt.DAVINCI, DienstArt.VISTEN)),
+
+            createTestPerson("Julia Hoffmann", 19,
+                           EnumSet.of(Wochentag.MITTWOCH, Wochentag.DONNERSTAG, Wochentag.FREITAG, Wochentag.SAMSTAG),
+                           EnumSet.of(DienstArt.VISTEN)),
+
+            createTestPerson("Stefan Becker", 20,
+                           EnumSet.of(Wochentag.MONTAG, Wochentag.DIENSTAG, Wochentag.MITTWOCH),
+                           EnumSet.of(DienstArt.DIENST_24H, DienstArt.DAVINCI)),
+
+            createTestPerson("Claudia Richter", 23,
+                           EnumSet.of(Wochentag.DIENSTAG, Wochentag.DONNERSTAG, Wochentag.SAMSTAG, Wochentag.SONNTAG),
+                           EnumSet.of(DienstArt.DAVINCI, DienstArt.VISTEN)),
+
+            createTestPerson("Dr. Hans Meyer", 22,
+                           EnumSet.of(Wochentag.MONTAG, Wochentag.MITTWOCH, Wochentag.FREITAG, Wochentag.SONNTAG),
+                           EnumSet.of(DienstArt.DIENST_24H)),
+
+            createTestPerson("Sabine Wolf", 17,
+                           EnumSet.of(Wochentag.DIENSTAG, Wochentag.MITTWOCH, Wochentag.DONNERSTAG),
+                           EnumSet.of(DienstArt.VISTEN, DienstArt.DAVINCI)),
+
+            createTestPerson("Peter Neumann", 21,
+                           EnumSet.of(Wochentag.MONTAG, Wochentag.DIENSTAG, Wochentag.FREITAG, Wochentag.SAMSTAG),
+                           EnumSet.of(DienstArt.DIENST_24H, DienstArt.VISTEN)),
+
+            createTestPerson("Maria Schulz", 20,
+                           EnumSet.of(Wochentag.MONTAG, Wochentag.MITTWOCH, Wochentag.DONNERSTAG, Wochentag.FREITAG),
+                           EnumSet.of(DienstArt.DAVINCI)),
+
+            createTestPerson("Dr. Frank Braun", 24,
+                           EnumSet.of(Wochentag.DIENSTAG, Wochentag.MITTWOCH, Wochentag.DONNERSTAG, Wochentag.FREITAG, Wochentag.SAMSTAG),
+                           EnumSet.of(DienstArt.DIENST_24H, DienstArt.DAVINCI, DienstArt.VISTEN)),
+
+            createTestPerson("Katrin Zimmermann", 19,
+                           EnumSet.of(Wochentag.MONTAG, Wochentag.DIENSTAG, Wochentag.DONNERSTAG, Wochentag.SONNTAG),
+                           EnumSet.of(DienstArt.VISTEN))
         };
 
         for (Person person : testPersonen) {
@@ -162,9 +206,7 @@ public class DatabaseTest {
             logger.info("Test-Person erstellt: {}", person.getName());
         }
 
-        // TODO: In Phase 3 - MonatsWunsch Testdaten erstellen
-
-        logger.info("✓ Testdaten erstellt");
+        logger.info("✓ 15 Testpersonen erstellt");
     }
 
     private static Person createTestPerson(String name, int anzahlDienste,

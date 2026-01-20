@@ -15,12 +15,12 @@
          <HBox alignment="CENTER_LEFT" spacing="15.0">
             <VBox spacing="3.0">
                <Label text="Monat:" styleClass="text-muted" style="-fx-font-size: 11px;" />
-               <ComboBox fx:id="monatComboBox" prefWidth="100.0" />
+               <ComboBox fx:id="monatComboBox" prefWidth="120.0" />
             </VBox>
 
             <VBox spacing="3.0">
                <Label text="Jahr:" styleClass="text-muted" style="-fx-font-size: 11px;" />
-               <ComboBox fx:id="jahrComboBox" prefWidth="70.0" />
+               <ComboBox fx:id="jahrComboBox" prefWidth="80.0" />
             </VBox>
 
             <!-- Excel-Buttons (dezenter) -->
@@ -54,13 +54,6 @@
             </VBox>
          </HBox>
          
-         <!-- Status und Warnungen -->
-         <HBox alignment="CENTER_LEFT" spacing="15.0">
-            <Label fx:id="statusLabel" text="Bereit für Generierung" />
-            <Region HBox.hgrow="ALWAYS" />
-            <Label fx:id="statistikLabel" text="" />
-         </HBox>
-         
          <!-- Warnungen Panel (ausblendbar) -->
          <VBox fx:id="warnungenPanel" managed="false" spacing="5.0" visible="false">
             <Label style="-fx-font-weight: bold; -fx-text-fill: #f44336;" text="⚠️ Warnungen:" />
@@ -84,16 +77,7 @@
                <Label fx:id="kalenderTitelLabel" style="-fx-font-size: 16px; -fx-font-weight: bold;" text="Dezember 2024" />
                <Button fx:id="naechsterMonatButton" onAction="#onNaechsterMonat" text="▶" />
                <Region HBox.hgrow="ALWAYS" />
-               <ComboBox fx:id="ansichtComboBox" onAction="#onAnsichtWechsel" prefWidth="130.0" />
-            </HBox>
-
-            <!-- Legende -->
-            <HBox alignment="CENTER_LEFT" spacing="10.0">
-               <Label styleClass="legend-24h" text="24h" />
-               <Label styleClass="legend-visten" text="Visten" />
-               <Label styleClass="legend-davinci" text="DaVinci" />
-               <Label styleClass="legend-offen" text="Offen" />
-               <Label styleClass="legend-urlaub" text="Urlaub" />
+               <ComboBox fx:id="ansichtComboBox" onAction="#onAnsichtWechsel" prefWidth="150.0" />
             </HBox>
 
             <!-- Wunsch-Info (falls Wünsche importiert) -->

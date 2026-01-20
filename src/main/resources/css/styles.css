@@ -416,7 +416,7 @@
    MENÜLEISTE
    ============================================ */
 .menu-bar {
-    -fx-background-color: #7a1d21;
+    -fx-background-color: #e6e6e6;
     -fx-padding: 0;
 }
 
@@ -425,16 +425,16 @@
 }
 
 .menu-bar .menu .label {
-    -fx-text-fill: white;
+    -fx-text-fill: black;
     -fx-padding: 5px 10px;
 }
 
 .menu-bar .menu:hover {
-    -fx-background-color: #9a242a;
+    -fx-background-color: #d9d9d9;
 }
 
 .menu-bar .menu:showing {
-    -fx-background-color: #5a161a;
+    -fx-background-color: #cccccc;
 }
 
 .context-menu {
