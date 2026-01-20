@@ -41,7 +41,6 @@ public class PersonenverwaltungController implements Initializable {
     @FXML private TableColumn<Person, Integer> dienstanzahlColumn;
     @FXML private TableColumn<Person, String> arbeitstagColumn;
     @FXML private TableColumn<Person, String> dienstartColumn;
-    @FXML private Button bearbeitenButton;
     @FXML private Button loeschenButton;
     @FXML private Label anzahlLabel;
 
@@ -72,7 +71,6 @@ public class PersonenverwaltungController implements Initializable {
     // FXML Controls - Aktionen
     @FXML private Button speichernButton;
     @FXML private Button abbrechenButton;
-    @FXML private Button zuruecksetzenButton;
 
     // FXML Controls - Status
     @FXML private Label statusLabel;
@@ -155,14 +153,23 @@ public class PersonenverwaltungController implements Initializable {
     }
 
     private void initializeEventHandler() {
-        // Personenauswahl
+        // Personenauswahl - Direktes Bearbeiten beim Klick
         personenTabelle.getSelectionModel().selectedItemProperty().addListener(
             (obs, oldSelection, newSelection) -> {
-                bearbeitenButton.setDisable(newSelection == null);
                 loeschenButton.setDisable(newSelection == null);
 
-                if (newSelection != null && !istBearbeitungsmodus) {
-                    zeigePersonDetails(newSelection);
+                if (newSelection != null) {
+                    // Bei ungespeicherten Änderungen nachfragen
+                    if (istBearbeitungsmodus && hatUnsavedChanges() && oldSelection != null && !oldSelection.equals(newSelection)) {
+                        if (!confirmUnsavedChanges()) {
+                            // Auswahl zurücksetzen
+                            javafx.application.Platform.runLater(() ->
+                                personenTabelle.getSelectionModel().select(oldSelection));
+                            return;
+                        }
+                    }
+                    // Direkt in den Bearbeitungsmodus wechseln
+                    startePersonBearbeitung(newSelection);
                 }
             });
 
@@ -299,15 +306,6 @@ public class PersonenverwaltungController implements Initializable {
         }
 
         beendeBearbeitungsmodus();
-    }
-
-    @FXML
-    private void onZuruecksetzen() {
-        if (aktuellePersonBearbeitung != null) {
-            ladePersonInFormular(aktuellePersonBearbeitung);
-        } else {
-            clearFormular();
-        }
     }
 
     // Wochentag Event Handler
@@ -456,7 +454,6 @@ public class PersonenverwaltungController implements Initializable {
         keineDienstartButton.setDisable(!aktiviert);
 
         speichernButton.setDisable(!aktiviert);
-        zuruecksetzenButton.setDisable(!aktiviert);
     }
 
     private void setAlleWochentage(boolean selected) {

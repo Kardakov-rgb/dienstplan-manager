@@ -11,9 +11,6 @@
             <Insets bottom="8.0" left="15.0" right="15.0" top="10.0" />
          </padding>
 
-         <!-- Überschrift -->
-         <Label styleClass="title" text="Personenverwaltung" />
-
          <!-- Suchbereich -->
          <HBox alignment="CENTER_LEFT" spacing="10.0">
             <TextField fx:id="suchfeld" promptText="Name suchen..." prefWidth="200.0" />
@@ -50,7 +47,6 @@
             
             <!-- Buttons für Personenliste -->
             <HBox spacing="10.0">
-               <Button fx:id="bearbeitenButton" disable="true" onAction="#onPersonBearbeiten" styleClass="btn-outline-secondary" text="Bearbeiten" />
                <Button fx:id="loeschenButton" disable="true" onAction="#onPersonLoeschen" styleClass="btn-danger" text="Löschen" />
                <Region HBox.hgrow="ALWAYS" />
                <Label fx:id="anzahlLabel" styleClass="text-muted" text="0 Personen" />
@@ -58,12 +54,12 @@
          </VBox>
          
          <!-- Rechte Seite: Person Details/Formular -->
-         <VBox spacing="15.0">
+         <VBox spacing="15.0" style="-fx-text-fill: black;">
             <padding>
                <Insets bottom="20.0" left="10.0" right="20.0" top="10.0" />
             </padding>
-            
-            <Label fx:id="formularTitel" style="-fx-font-size: 16px; -fx-font-weight: bold;" text="Person Details" />
+
+            <Label fx:id="formularTitel" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: black;" text="Person Details" />
             
             <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS">
                <VBox spacing="15.0">
@@ -73,15 +69,15 @@
                   
                   <!-- Grunddaten -->
                   <VBox spacing="8.0">
-                     <Label style="-fx-font-weight: bold;" text="Grunddaten" />
+                     <Label style="-fx-font-weight: bold; -fx-text-fill: black;" text="Grunddaten" />
                      
                      <HBox alignment="CENTER_LEFT" spacing="10.0">
-                        <Label minWidth="120.0" text="Name:" />
+                        <Label minWidth="120.0" text="Name:" style="-fx-text-fill: black;" />
                         <TextField fx:id="nameField" prefWidth="200.0" />
                      </HBox>
-                     
+
                      <HBox alignment="CENTER_LEFT" spacing="10.0">
-                        <Label minWidth="120.0" text="Anzahl Dienste:" />
+                        <Label minWidth="120.0" text="Anzahl Dienste:" style="-fx-text-fill: black;" />
                         <Spinner fx:id="anzahlDiensteSpinner" editable="true" prefWidth="100.0" />
                      </HBox>
                   </VBox>
@@ -90,36 +86,36 @@
                   
                   <!-- Arbeitstage -->
                   <VBox spacing="10.0">
-                     <Label styleClass="subtitle" style="-fx-font-size: 14px;" text="Arbeitstage" />
+                     <Label styleClass="subtitle" style="-fx-font-size: 14px; -fx-text-fill: black;" text="Arbeitstage" />
 
                      <!-- Wochentage in einer Reihe -->
                      <HBox spacing="8.0" alignment="CENTER_LEFT">
                         <VBox alignment="CENTER" spacing="2.0" prefWidth="45">
-                           <Label text="Mo" styleClass="text-muted" style="-fx-font-size: 11px;" />
+                           <Label text="Mo" style="-fx-font-size: 11px; -fx-text-fill: black;" />
                            <CheckBox fx:id="montagCheck" />
                         </VBox>
                         <VBox alignment="CENTER" spacing="2.0" prefWidth="45">
-                           <Label text="Di" styleClass="text-muted" style="-fx-font-size: 11px;" />
+                           <Label text="Di" style="-fx-font-size: 11px; -fx-text-fill: black;" />
                            <CheckBox fx:id="dienstagCheck" />
                         </VBox>
                         <VBox alignment="CENTER" spacing="2.0" prefWidth="45">
-                           <Label text="Mi" styleClass="text-muted" style="-fx-font-size: 11px;" />
+                           <Label text="Mi" style="-fx-font-size: 11px; -fx-text-fill: black;" />
                            <CheckBox fx:id="mittwochCheck" />
                         </VBox>
                         <VBox alignment="CENTER" spacing="2.0" prefWidth="45">
-                           <Label text="Do" styleClass="text-muted" style="-fx-font-size: 11px;" />
+                           <Label text="Do" style="-fx-font-size: 11px; -fx-text-fill: black;" />
                            <CheckBox fx:id="donnerstagCheck" />
                         </VBox>
                         <VBox alignment="CENTER" spacing="2.0" prefWidth="45">
-                           <Label text="Fr" styleClass="text-muted" style="-fx-font-size: 11px;" />
+                           <Label text="Fr" style="-fx-font-size: 11px; -fx-text-fill: black;" />
                            <CheckBox fx:id="freitagCheck" />
                         </VBox>
                         <VBox alignment="CENTER" spacing="2.0" prefWidth="45">
-                           <Label text="Sa" styleClass="text-muted" style="-fx-font-size: 11px;" />
+                           <Label text="Sa" style="-fx-font-size: 11px; -fx-text-fill: black;" />
                            <CheckBox fx:id="samstagCheck" />
                         </VBox>
                         <VBox alignment="CENTER" spacing="2.0" prefWidth="45">
-                           <Label text="So" styleClass="text-muted" style="-fx-font-size: 11px;" />
+                           <Label text="So" style="-fx-font-size: 11px; -fx-text-fill: black;" />
                            <CheckBox fx:id="sonntagCheck" />
                         </VBox>
                      </HBox>
@@ -141,7 +137,7 @@
 
                   <!-- Dienstarten -->
                   <VBox spacing="10.0">
-                     <Label styleClass="subtitle" style="-fx-font-size: 14px;" text="Verfügbare Dienstarten" />
+                     <Label styleClass="subtitle" style="-fx-font-size: 14px; -fx-text-fill: black;" text="Verfügbare Dienstarten" />
 
                      <!-- Dienstarten horizontal -->
                      <HBox spacing="20.0" alignment="CENTER_LEFT">
@@ -170,8 +166,6 @@
             <HBox spacing="10.0">
                <Button fx:id="speichernButton" disable="true" onAction="#onSpeichern" styleClass="btn-secondary" text="Speichern" />
                <Button fx:id="abbrechenButton" onAction="#onAbbrechen" styleClass="btn-outline-secondary" text="Abbrechen" />
-               <Region HBox.hgrow="ALWAYS" />
-               <Button fx:id="zuruecksetzenButton" disable="true" onAction="#onZuruecksetzen" styleClass="btn-outline-secondary" text="Zurücksetzen" />
             </HBox>
          </VBox>
       </SplitPane>

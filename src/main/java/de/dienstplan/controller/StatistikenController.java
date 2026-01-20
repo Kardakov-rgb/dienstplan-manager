@@ -67,14 +67,6 @@ public class StatistikenController implements Initializable {
     @FXML private TableColumn<WunscherfuellungRow, String> wunschDienstColumn;
     @FXML private TableColumn<WunscherfuellungRow, String> wunschGesamtColumn;
     @FXML private TableColumn<WunscherfuellungRow, String> wunschStatusColumn;
-    @FXML private BarChart<String, Number> wunscherfuellungChart;
-    @FXML private CategoryAxis wunschChartXAxis;
-    @FXML private NumberAxis wunschChartYAxis;
-
-    // Fairness Trend
-    @FXML private LineChart<String, Number> fairnessTrendChart;
-    @FXML private CategoryAxis trendChartXAxis;
-    @FXML private NumberAxis trendChartYAxis;
 
     // Soll/Ist Vergleich
     @FXML private TableView<SollIstRow> sollIstTable;
@@ -82,9 +74,6 @@ public class StatistikenController implements Initializable {
     @FXML private TableColumn<SollIstRow, String> sollIstSollColumn;
     @FXML private TableColumn<SollIstRow, String> sollIstIstColumn;
     @FXML private TableColumn<SollIstRow, String> sollIstDiffColumn;
-    @FXML private BarChart<String, Number> sollIstChart;
-    @FXML private CategoryAxis sollIstChartXAxis;
-    @FXML private NumberAxis sollIstChartYAxis;
 
     // Dienstarten Verteilung
     @FXML private PieChart dienstArtenPieChart;
@@ -240,23 +229,13 @@ public class StatistikenController implements Initializable {
     }
 
     private void initializeCharts() {
-        // Chart-Einstellungen
-        wunscherfuellungChart.setAnimated(false);
-        fairnessTrendChart.setAnimated(false);
-        sollIstChart.setAnimated(false);
-        wochentagChart.setAnimated(false);
-        dienstArtenPieChart.setAnimated(false);
-
-        // Y-Achsen Konfiguration
-        wunschChartYAxis.setAutoRanging(false);
-        wunschChartYAxis.setLowerBound(0);
-        wunschChartYAxis.setUpperBound(100);
-        wunschChartYAxis.setTickUnit(10);
-
-        trendChartYAxis.setAutoRanging(false);
-        trendChartYAxis.setLowerBound(0);
-        trendChartYAxis.setUpperBound(100);
-        trendChartYAxis.setTickUnit(10);
+        // Charts wurden entfernt - nur noch Tabellen
+        if (wochentagChart != null) {
+            wochentagChart.setAnimated(false);
+        }
+        if (dienstArtenPieChart != null) {
+            dienstArtenPieChart.setAnimated(false);
+        }
     }
 
     private void onZeitraumChanged() {
@@ -407,12 +386,6 @@ public class StatistikenController implements Initializable {
 
     private void updateWunscherfuellung(GesamtStatistik stats) {
         wunscherfuellungData.clear();
-        wunscherfuellungChart.getData().clear();
-
-        XYChart.Series<String, Number> freiSeries = new XYChart.Series<>();
-        freiSeries.setName("Freiwünsche");
-        XYChart.Series<String, Number> dienstSeries = new XYChart.Series<>();
-        dienstSeries.setName("Dienstwünsche");
 
         for (PersonWunschStatistik pw : stats.personWunschStatistiken()) {
             // Tabelle
@@ -424,50 +397,15 @@ public class StatistikenController implements Initializable {
                     String.format("%.0f%%", pw.erfuellungsQuote()),
                     status
             ));
-
-            // Chart
-            freiSeries.getData().add(new XYChart.Data<>(pw.personName(), pw.freiwunschQuote()));
-            dienstSeries.getData().add(new XYChart.Data<>(pw.personName(), pw.dienstwunschQuote()));
         }
-
-        wunscherfuellungChart.getData().addAll(freiSeries, dienstSeries);
     }
 
     private void updateFairnessTrend(YearMonth von, YearMonth bis) {
-        fairnessTrendChart.getData().clear();
-
-        try {
-            Map<Long, List<MonatlicheErfuellung>> trendDaten = statistikService.berechneFairnessTrend(von, bis);
-
-            for (Map.Entry<Long, List<MonatlicheErfuellung>> entry : trendDaten.entrySet()) {
-                XYChart.Series<String, Number> series = new XYChart.Series<>();
-                series.setName(entry.getValue().isEmpty() ? "Person " + entry.getKey()
-                        : entry.getValue().get(0).personName());
-
-                for (MonatlicheErfuellung me : entry.getValue()) {
-                    series.getData().add(new XYChart.Data<>(
-                            me.monat().format(MONAT_FORMAT),
-                            me.erfuellungsQuote()
-                    ));
-                }
-
-                if (!series.getData().isEmpty()) {
-                    fairnessTrendChart.getData().add(series);
-                }
-            }
-        } catch (SQLException e) {
-            logger.error("Fehler beim Laden des Fairness-Trends", e);
-        }
+        // Chart wurde entfernt - keine Aktion nötig
     }
 
     private void updateSollIstVergleich(GesamtStatistik stats) {
         sollIstData.clear();
-        sollIstChart.getData().clear();
-
-        XYChart.Series<String, Number> sollSeries = new XYChart.Series<>();
-        sollSeries.setName("Soll");
-        XYChart.Series<String, Number> istSeries = new XYChart.Series<>();
-        istSeries.setName("Ist");
 
         for (PersonDienstStatistik pd : stats.personDienstStatistiken()) {
             int diff = pd.istDienste() - pd.sollDienste();
@@ -479,12 +417,7 @@ public class StatistikenController implements Initializable {
                     String.valueOf(pd.istDienste()),
                     diffStr
             ));
-
-            sollSeries.getData().add(new XYChart.Data<>(pd.personName(), pd.sollDienste()));
-            istSeries.getData().add(new XYChart.Data<>(pd.personName(), pd.istDienste()));
         }
-
-        sollIstChart.getData().addAll(sollSeries, istSeries);
     }
 
     private void updateDienstArtenVerteilung(GesamtStatistik stats) {

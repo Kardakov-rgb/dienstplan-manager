@@ -43,7 +43,6 @@ public class DienstplanerstellungController implements Initializable {
     // FXML Controls - Konfiguration
     @FXML private ComboBox<String> monatComboBox;
     @FXML private ComboBox<Integer> jahrComboBox;
-    @FXML private TextField dienstplanNameField;
     @FXML private Button generiereButton;
     @FXML private Button speichernButton;
     @FXML private Button exportButton;
@@ -291,8 +290,7 @@ public class DienstplanerstellungController implements Initializable {
                 // Es gibt einen Dienstplan für diesen Monat - lade den ersten (und einzigen)
                 aktuellerDienstplan = dienstplaene.get(0);
 
-                // Name im Textfeld setzen
-                dienstplanNameField.setText(aktuellerDienstplan.getName());
+                // Name wird automatisch generiert
 
                 // Tages-Dienste Map aktualisieren
                 updateTagesDiensteMap();
@@ -409,10 +407,8 @@ public class DienstplanerstellungController implements Initializable {
             aktuellerDienstplan = result.getDienstplan();
 
             if (aktuellerDienstplan != null) {
-                // Dienstplan Name setzen falls leer
-                if (aktuellerDienstplan.getName() == null || aktuellerDienstplan.getName().trim().isEmpty()) {
-                    aktuellerDienstplan.setName(dienstplanNameField.getText());
-                }
+                // Dienstplan Name automatisch setzen
+                aktuellerDienstplan.setName(generateDienstplanName());
 
                 // Tage-Dienste Map für Kalender erstellen
                 updateTagesDiensteMap();
@@ -458,13 +454,8 @@ public class DienstplanerstellungController implements Initializable {
         }
 
         try {
-            // Name aus UI übernehmen
-            String name = dienstplanNameField.getText().trim();
-            if (name.isEmpty()) {
-                showWarning("Name fehlt", "Bitte geben Sie einen Namen für den Dienstplan ein.");
-                return;
-            }
-
+            // Name automatisch generieren
+            String name = generateDienstplanName();
             aktuellerDienstplan.setName(name);
 
             // Prüfen ob bereits ein Dienstplan für diesen Monat existiert
@@ -702,11 +693,14 @@ public class DienstplanerstellungController implements Initializable {
         }
     }
     
+    private String generateDienstplanName() {
+        return "Dienstplan_" +
+            aktuellerMonat.getMonth().getDisplayName(TextStyle.FULL, Locale.GERMAN) +
+            "_" + aktuellerMonat.getYear();
+    }
+
     private void updateDienstplanName() {
-        String defaultName = "Dienstplan " + 
-            aktuellerMonat.getMonth().getDisplayName(TextStyle.FULL, Locale.GERMAN) + 
-            " " + aktuellerMonat.getYear();
-        dienstplanNameField.setText(defaultName);
+        // Name wird automatisch generiert, keine UI-Aktualisierung nötig
     }
     
     private void updateKalender() {

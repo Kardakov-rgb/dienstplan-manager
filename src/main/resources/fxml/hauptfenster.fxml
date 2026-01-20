@@ -113,7 +113,7 @@
                      <VBox alignment="CENTER" spacing="8.0" prefWidth="200" prefHeight="160"
                            styleClass="card"
                            style="-fx-background-color: #f9ecec; -fx-border-color: #7a1d21;">
-                        <Label style="-fx-font-size: 36px;" text="👥" />
+                        <Label style="-fx-font-size: 36px; -fx-text-fill: #7a1d21;" text="⬤⬤" />
                         <Label styleClass="subtitle" text="Personen" />
                         <Label fx:id="dashboardPersonenAnzahl" styleClass="card-value" style="-fx-text-fill: #7a1d21;" text="0" />
                         <Button onAction="#onPersonenverwaltungOeffnen"
@@ -125,7 +125,7 @@
                      <VBox alignment="CENTER" spacing="8.0" prefWidth="200" prefHeight="160"
                            styleClass="card"
                            style="-fx-background-color: #fce4f0; -fx-border-color: #c82285;">
-                        <Label style="-fx-font-size: 36px;" text="📅" />
+                        <Label style="-fx-font-size: 36px; -fx-text-fill: #c82285;" text="▦" />
                         <Label styleClass="subtitle" text="Dienstpläne" />
                         <Label fx:id="dashboardDienstplaeneAnzahl" styleClass="card-value" style="-fx-text-fill: #c82285;" text="0" />
                         <Button onAction="#onDienstplanerstellungOeffnen"
@@ -137,7 +137,7 @@
                      <VBox alignment="CENTER" spacing="8.0" prefWidth="200" prefHeight="160"
                            styleClass="card"
                            style="-fx-background-color: #fff9e6; -fx-border-color: #e6b800;">
-                        <Label style="-fx-font-size: 36px;" text="📊" />
+                        <Label style="-fx-font-size: 36px; -fx-text-fill: #806600;" text="▤" />
                         <Label styleClass="subtitle" text="Statistiken" />
                         <Label fx:id="dashboardDiensteAnzahl" styleClass="card-value" style="-fx-text-fill: #806600;" text="0" />
                         <Button onAction="#onStatistikenOeffnen"

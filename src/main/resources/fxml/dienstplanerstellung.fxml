@@ -11,9 +11,6 @@
             <Insets bottom="8.0" left="15.0" right="15.0" top="10.0" />
          </padding>
 
-         <!-- Überschrift -->
-         <Label styleClass="title" text="Dienstplan-Erstellung" />
-
          <!-- Konfigurationsbereich -->
          <HBox alignment="CENTER_LEFT" spacing="15.0">
             <VBox spacing="3.0">
@@ -24,11 +21,6 @@
             <VBox spacing="3.0">
                <Label text="Jahr:" styleClass="text-muted" style="-fx-font-size: 11px;" />
                <ComboBox fx:id="jahrComboBox" prefWidth="70.0" />
-            </VBox>
-
-            <VBox spacing="3.0">
-               <Label text="Name:" styleClass="text-muted" style="-fx-font-size: 11px;" />
-               <TextField fx:id="dienstplanNameField" prefWidth="180.0" promptText="z.B. Dienstplan Dez 2024" />
             </VBox>
 
             <!-- Excel-Buttons (dezenter) -->
@@ -127,7 +119,7 @@
                <Insets bottom="10.0" left="5.0" right="10.0" top="5.0" />
             </padding>
 
-            <Label fx:id="detailsTitel" style="-fx-font-size: 14px; -fx-font-weight: bold;" text="Dienst Details" />
+            <Label fx:id="detailsTitel" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: black;" text="Dienst Details" />
 
             <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS">
                <VBox spacing="10.0">
@@ -137,28 +129,28 @@
                   
                   <!-- Ausgewählter Dienst -->
                   <VBox fx:id="dienstDetailsPanel" managed="false" spacing="10.0" visible="false">
-                     <Label style="-fx-font-weight: bold;" text="Ausgewählter Dienst" />
-                     
+                     <Label style="-fx-font-weight: bold; -fx-text-fill: black;" text="Ausgewählter Dienst" />
+
                      <GridPane hgap="10.0" vgap="8.0">
                         <columnConstraints>
                            <ColumnConstraints minWidth="80.0" />
                            <ColumnConstraints hgrow="ALWAYS" />
                         </columnConstraints>
-                        
-                        <Label text="Datum:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                        <Label fx:id="dienstDatumLabel" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-                        
-                        <Label text="Art:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                        <Label fx:id="dienstArtLabel" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                        
-                        <Label text="Person:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                        <ComboBox fx:id="dienstPersonComboBox" onAction="#onPersonZuweisungChange" 
+
+                        <Label text="Datum:" style="-fx-text-fill: black;" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                        <Label fx:id="dienstDatumLabel" style="-fx-text-fill: black;" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                        <Label text="Art:" style="-fx-text-fill: black;" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                        <Label fx:id="dienstArtLabel" style="-fx-text-fill: black;" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                        <Label text="Person:" style="-fx-text-fill: black;" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                        <ComboBox fx:id="dienstPersonComboBox" onAction="#onPersonZuweisungChange"
                                   promptText="Person auswählen..." GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                        
-                        <Label text="Status:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+
+                        <Label text="Status:" style="-fx-text-fill: black;" GridPane.columnIndex="0" GridPane.rowIndex="3" />
                         <ComboBox fx:id="dienstStatusComboBox" onAction="#onStatusChange" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                        
-                        <Label text="Bemerkung:" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+
+                        <Label text="Bemerkung:" style="-fx-text-fill: black;" GridPane.columnIndex="0" GridPane.rowIndex="4" />
                         <TextArea fx:id="dienstBemerkungArea" prefRowCount="3" GridPane.columnIndex="1" GridPane.rowIndex="4" />
                      </GridPane>
                      
@@ -174,24 +166,24 @@
                   
                   <!-- Statistiken -->
                   <VBox spacing="10.0">
-                     <Label style="-fx-font-weight: bold;" text="Dienstplan-Statistiken" />
-                     
+                     <Label style="-fx-font-weight: bold; -fx-text-fill: black;" text="Dienstplan-Statistiken" />
+
                      <GridPane hgap="15.0" vgap="8.0">
                         <columnConstraints>
                            <ColumnConstraints minWidth="120.0" />
                            <ColumnConstraints hgrow="ALWAYS" />
                         </columnConstraints>
-                        
-                        <Label text="Zuweisungsgrad:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+
+                        <Label text="Zuweisungsgrad:" style="-fx-text-fill: black;" GridPane.columnIndex="0" GridPane.rowIndex="0" />
                         <ProgressBar fx:id="zuweisungsgradBar" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-                        
-                        <Label text="Gesamt Dienste:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                        <Label fx:id="gesamtDiensteLabel" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                        
-                        <Label text="Zugewiesen:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                        <Label fx:id="zugewiesenLabel" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                        
-                        <Label text="Offen:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+
+                        <Label text="Gesamt Dienste:" style="-fx-text-fill: black;" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                        <Label fx:id="gesamtDiensteLabel" style="-fx-text-fill: black;" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                        <Label text="Zugewiesen:" style="-fx-text-fill: black;" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                        <Label fx:id="zugewiesenLabel" style="-fx-text-fill: black;" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                        <Label text="Offen:" style="-fx-text-fill: black;" GridPane.columnIndex="0" GridPane.rowIndex="3" />
                         <Label fx:id="offenLabel" style="-fx-text-fill: #f44336;" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                      </GridPane>
                   </VBox>

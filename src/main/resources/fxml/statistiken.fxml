@@ -16,7 +16,6 @@
 
         <!-- Header -->
         <HBox alignment="CENTER_LEFT" spacing="15.0">
-            <Label styleClass="title" text="Statistiken und Auswertungen" />
             <Region HBox.hgrow="ALWAYS" />
 
             <!-- Zeitraum-Auswahl -->
@@ -86,46 +85,21 @@
                     <Label fx:id="benachteiligteNamenLabel" text="" style="-fx-font-size: 12px;" />
                 </HBox>
 
-                <HBox spacing="15.0">
-                    <!-- Wunscherfüllung Tabelle -->
-                    <VBox spacing="6.0" HBox.hgrow="ALWAYS">
-                        <Label style="-fx-font-size: 13px; -fx-font-weight: bold;" text="Wunscherfüllung pro Mitarbeiter" />
-                        <TableView fx:id="wunscherfuellungTable" prefHeight="200.0">
-                            <columns>
-                                <TableColumn fx:id="wunschPersonColumn" prefWidth="120.0" text="Person" />
-                                <TableColumn fx:id="wunschFreiColumn" prefWidth="100.0" text="Freiwünsche" />
-                                <TableColumn fx:id="wunschDienstColumn" prefWidth="100.0" text="Dienstwünsche" />
-                                <TableColumn fx:id="wunschGesamtColumn" prefWidth="80.0" text="Gesamt" />
-                                <TableColumn fx:id="wunschStatusColumn" prefWidth="60.0" text="Status" />
-                            </columns>
-                        </TableView>
-                    </VBox>
-
-                    <!-- Wunscherfüllung Chart -->
-                    <VBox spacing="6.0" prefWidth="350.0">
-                        <Label style="-fx-font-size: 13px; -fx-font-weight: bold;" text="Erfüllungsquote" />
-                        <BarChart fx:id="wunscherfuellungChart" prefHeight="200.0" legendVisible="true">
-                            <xAxis>
-                                <CategoryAxis fx:id="wunschChartXAxis" label="Person" />
-                            </xAxis>
-                            <yAxis>
-                                <NumberAxis fx:id="wunschChartYAxis" label="Prozent" upperBound="100.0" tickUnit="10.0" />
-                            </yAxis>
-                        </BarChart>
-                    </VBox>
-                </HBox>
-
-                <!-- Fairness Trend -->
+                <!-- Wunscherfüllung Tabelle -->
                 <VBox spacing="6.0">
-                    <Label style="-fx-font-size: 13px; -fx-font-weight: bold;" text="Historischer Fairness-Trend" />
-                    <LineChart fx:id="fairnessTrendChart" prefHeight="200.0" legendVisible="true">
-                        <xAxis>
-                            <CategoryAxis fx:id="trendChartXAxis" label="Monat" />
-                        </xAxis>
-                        <yAxis>
-                            <NumberAxis fx:id="trendChartYAxis" label="Erfüllung (Prozent)" upperBound="100.0" tickUnit="10.0" />
-                        </yAxis>
-                    </LineChart>
+                    <Label style="-fx-font-size: 13px; -fx-font-weight: bold;" text="Wunscherfüllung pro Mitarbeiter" />
+                    <TableView fx:id="wunscherfuellungTable" prefHeight="350.0" VBox.vgrow="ALWAYS">
+                        <columns>
+                            <TableColumn fx:id="wunschPersonColumn" prefWidth="150.0" text="Person" />
+                            <TableColumn fx:id="wunschFreiColumn" prefWidth="120.0" text="Freiwünsche" />
+                            <TableColumn fx:id="wunschDienstColumn" prefWidth="120.0" text="Dienstwünsche" />
+                            <TableColumn fx:id="wunschGesamtColumn" prefWidth="100.0" text="Gesamt" />
+                            <TableColumn fx:id="wunschStatusColumn" prefWidth="80.0" text="Status" />
+                        </columns>
+                        <columnResizePolicy>
+                            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                        </columnResizePolicy>
+                    </TableView>
                 </VBox>
             </VBox>
         </TitledPane>
@@ -137,33 +111,21 @@
                     <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
                 </padding>
 
-                <HBox spacing="15.0">
-                    <!-- Soll/Ist Vergleich -->
-                    <VBox spacing="6.0" HBox.hgrow="ALWAYS">
-                        <Label style="-fx-font-size: 13px; -fx-font-weight: bold;" text="Dienste pro Person (Soll vs. Ist)" />
-                        <TableView fx:id="sollIstTable" prefHeight="180.0">
-                            <columns>
-                                <TableColumn fx:id="sollIstPersonColumn" prefWidth="100.0" text="Person" />
-                                <TableColumn fx:id="sollIstSollColumn" prefWidth="60.0" text="Soll" />
-                                <TableColumn fx:id="sollIstIstColumn" prefWidth="60.0" text="Ist" />
-                                <TableColumn fx:id="sollIstDiffColumn" prefWidth="60.0" text="Diff" />
-                            </columns>
-                        </TableView>
-                    </VBox>
-
-                    <!-- Soll/Ist Chart -->
-                    <VBox spacing="6.0" prefWidth="350.0">
-                        <Label style="-fx-font-size: 13px; -fx-font-weight: bold;" text="Soll/Ist Vergleich" />
-                        <BarChart fx:id="sollIstChart" prefHeight="180.0" legendVisible="true">
-                            <xAxis>
-                                <CategoryAxis fx:id="sollIstChartXAxis" label="Person" />
-                            </xAxis>
-                            <yAxis>
-                                <NumberAxis fx:id="sollIstChartYAxis" label="Anzahl" />
-                            </yAxis>
-                        </BarChart>
-                    </VBox>
-                </HBox>
+                <!-- Soll/Ist Vergleich -->
+                <VBox spacing="6.0">
+                    <Label style="-fx-font-size: 13px; -fx-font-weight: bold;" text="Dienste pro Person (Soll vs. Ist)" />
+                    <TableView fx:id="sollIstTable" prefHeight="350.0" VBox.vgrow="ALWAYS">
+                        <columns>
+                            <TableColumn fx:id="sollIstPersonColumn" prefWidth="150.0" text="Person" />
+                            <TableColumn fx:id="sollIstSollColumn" prefWidth="80.0" text="Soll" />
+                            <TableColumn fx:id="sollIstIstColumn" prefWidth="80.0" text="Ist" />
+                            <TableColumn fx:id="sollIstDiffColumn" prefWidth="80.0" text="Diff" />
+                        </columns>
+                        <columnResizePolicy>
+                            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                        </columnResizePolicy>
+                    </TableView>
+                </VBox>
 
                 <!-- Dienstarten Verteilung - AUSGEBLENDET -->
                 <HBox spacing="20.0" visible="false" managed="false">
