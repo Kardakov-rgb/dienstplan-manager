@@ -381,10 +381,6 @@ public class ExcelDienstplanExporter {
         style.setBorderTop(BorderStyle.THIN);
         style.setBorderLeft(BorderStyle.THIN);
         style.setBorderRight(BorderStyle.THIN);
-        style.setBorderColor(BorderSide.BOTTOM, new XSSFColor(new byte[]{(byte)200, (byte)200, (byte)200}, null));
-        style.setBorderColor(BorderSide.TOP, new XSSFColor(new byte[]{(byte)200, (byte)200, (byte)200}, null));
-        style.setBorderColor(BorderSide.LEFT, new XSSFColor(new byte[]{(byte)200, (byte)200, (byte)200}, null));
-        style.setBorderColor(BorderSide.RIGHT, new XSSFColor(new byte[]{(byte)200, (byte)200, (byte)200}, null));
         return style;
     }
 
