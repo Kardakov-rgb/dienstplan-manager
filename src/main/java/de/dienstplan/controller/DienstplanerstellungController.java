@@ -1110,7 +1110,7 @@ personStatistikListe.sort((a, b) -> Integer.compare(b.gesamtDienste.get(), a.ges
             try {
                 ExcelDienstplanExporter exporter = new ExcelDienstplanExporter();
                 exporter.exportiereDienstplan(aktuellerDienstplan, verfuegbarePersonen,
-                    aktuelleWunschStatistiken, file.toPath());
+                    aktuelleWuensche, aktuelleWunschStatistiken, file.toPath());
                 setStatus("Dienstplan exportiert: " + file.getName());
                 showInfo("Export erfolgreich", "Der Dienstplan wurde erfolgreich exportiert.");
             } catch (IOException e) {
