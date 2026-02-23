@@ -208,7 +208,7 @@ public class ExcelTemplateGenerator {
             "",
             "   U = Urlaub (MUSS berücksichtigt werden)",
             "   F = Freiwunsch (wird möglichst berücksichtigt)",
-            "   D = Dienstwunsch für 24h-Dienst (wird möglichst berücksichtigt)",
+            "   D = Dienstwunsch für Vordergrund (wird möglichst berücksichtigt)",
             "",
             "3. Lassen Sie Zellen leer, wenn kein Wunsch besteht",
             "4. Speichern Sie die Datei und senden Sie sie zurück",

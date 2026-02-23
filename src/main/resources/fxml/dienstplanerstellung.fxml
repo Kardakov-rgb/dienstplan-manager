@@ -97,8 +97,8 @@
 
             <!-- Legende -->
             <HBox alignment="CENTER_LEFT" spacing="10.0">
-               <Label styleClass="legend-24h" text="24h" />
-               <Label styleClass="legend-visten" text="Visten" />
+               <Label styleClass="legend-24h" text="Vordergrund" />
+               <Label styleClass="legend-visten" text="Visitendienst" />
                <Label styleClass="legend-davinci" text="DaVinci" />
                <Label styleClass="legend-offen" text="Offen" />
                <Label styleClass="legend-urlaub" text="Urlaub" />
@@ -206,8 +206,8 @@
                            <TableColumn fx:id="personNameColumn" prefWidth="120.0" text="Person" />
                            <TableColumn fx:id="personAnzahlColumn" prefWidth="60.0" text="Anzahl" />
                            <TableColumn fx:id="person24hColumn" prefWidth="40.0" text="24h" />
-                           <TableColumn fx:id="personVistenColumn" prefWidth="40.0" text="V" />
-                           <TableColumn fx:id="personDaVinciColumn" prefWidth="40.0" text="DV" />
+                           <TableColumn fx:id="personVistenColumn" prefWidth="40.0" text="VD" />
+                           <TableColumn fx:id="personDaVinciColumn" prefWidth="40.0" text="DV-D" />
                         </columns>
                         <columnResizePolicy>
                            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
