@@ -145,8 +145,8 @@
 
                      <!-- Dienstarten horizontal -->
                      <HBox spacing="20.0" alignment="CENTER_LEFT">
-                        <CheckBox fx:id="dienst24hCheck" text="24h" />
-                        <CheckBox fx:id="vistenCheck" text="Visten" />
+                        <CheckBox fx:id="dienst24hCheck" text="Vordergrund" />
+                        <CheckBox fx:id="vistenCheck" text="Visitendienst" />
                         <CheckBox fx:id="davinciCheck" text="DaVinci" />
                      </HBox>
 

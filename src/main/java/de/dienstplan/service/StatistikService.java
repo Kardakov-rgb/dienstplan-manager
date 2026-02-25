@@ -472,8 +472,8 @@ public class StatistikService {
         headerRow.createCell(1).setCellValue("Soll");
         headerRow.createCell(2).setCellValue("Ist");
         headerRow.createCell(3).setCellValue("Differenz");
-        headerRow.createCell(4).setCellValue("24h-Dienste");
-        headerRow.createCell(5).setCellValue("Visiten");
+        headerRow.createCell(4).setCellValue("Vordergrund");
+        headerRow.createCell(5).setCellValue("Visitendienst");
         headerRow.createCell(6).setCellValue("DaVinci");
 
         // Daten
