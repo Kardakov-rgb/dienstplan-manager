@@ -327,6 +327,14 @@ public class DienstplanerstellungController implements Initializable {
     
     @FXML
     private void onDienstplanGenerieren() {
+        // Personen vor jeder Generierung frisch aus DB laden,
+        // damit Änderungen aus der Personenverwaltung (z.B. Löschungen) berücksichtigt werden
+        try {
+            loadPersonen();
+        } catch (SQLException e) {
+            logger.warn("Personen konnten vor der Generierung nicht aktualisiert werden: {}", e.getMessage());
+        }
+
         if (verfuegbarePersonen.isEmpty()) {
             showWarning("Keine Personen", "Es sind keine Personen in der Personenverwaltung vorhanden.");
             return;
