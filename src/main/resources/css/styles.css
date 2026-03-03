@@ -191,8 +191,8 @@
 
 .btn-outline-secondary {
     -fx-background-color: transparent;
-    -fx-text-fill: #666666;
-    -fx-border-color: #cccccc;
+    -fx-text-fill: #505050;
+    -fx-border-color: #999999;
 }
 
 .btn-outline-secondary:hover {
@@ -249,7 +249,7 @@
 }
 
 .text-muted {
-    -fx-text-fill: #666666;
+    -fx-text-fill: #505050;
 }
 
 .text-primary {
@@ -291,7 +291,7 @@
 }
 
 .tab-pane .tab .tab-label {
-    -fx-text-fill: #666666;
+    -fx-text-fill: #505050;
     -fx-font-size: 13px;
 }
 

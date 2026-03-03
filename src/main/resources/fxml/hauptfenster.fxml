@@ -53,18 +53,18 @@
          
          <!-- Toolbar - AUSGEBLENDET -->
          <ToolBar fx:id="toolBar" prefHeight="50.0" visible="false" managed="false">
-            <Button fx:id="neuePersonToolButton" onAction="#onNeuePersonHinzufuegen" 
-                    style="-fx-background-color: #4CAF50; -fx-text-fill: white;" 
+            <Button fx:id="neuePersonToolButton" onAction="#onNeuePersonHinzufuegen"
+                    style="-fx-background-color: #2E7D32; -fx-text-fill: white;"
                     text="👤 Neue Person" />
             
             <Separator orientation="VERTICAL" />
             
-            <Button fx:id="dienstplanErstellenToolButton" onAction="#onNeuerDienstplan" 
-                    style="-fx-background-color: #2196F3; -fx-text-fill: white;" 
+            <Button fx:id="dienstplanErstellenToolButton" onAction="#onNeuerDienstplan"
+                    style="-fx-background-color: #1565C0; -fx-text-fill: white;"
                     text="📅 Neuer Dienstplan" />
             
-            <Button fx:id="dienstplanGenerierenToolButton" onAction="#onSchnellGenerierung" 
-                    style="-fx-background-color: #FF9800; -fx-text-fill: white;" 
+            <Button fx:id="dienstplanGenerierenToolButton" onAction="#onSchnellGenerierung"
+                    style="-fx-background-color: #FF9800; -fx-text-fill: #1a1a1a;"
                     text="🚀 Schnell-Generierung" />
             
             <Separator orientation="VERTICAL" />
