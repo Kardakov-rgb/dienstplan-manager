@@ -328,10 +328,16 @@
 
 .table-view .table-row-cell:selected {
     -fx-background-color: #fce4f0;
+    -fx-text-fill: #333333;
+}
+
+.table-view .table-row-cell:selected .text {
+    -fx-fill: #333333;
 }
 
 .table-view .table-row-cell:hover {
     -fx-background-color: #f9ecec;
+    -fx-text-fill: #333333;
 }
 
 /* ============================================
