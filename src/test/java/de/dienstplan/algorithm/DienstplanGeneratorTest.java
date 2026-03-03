@@ -10,7 +10,9 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -90,10 +92,27 @@ class DienstplanGeneratorTest {
     @DisplayName("Constraint-Prüfung")
     class ConstraintTests {
 
-        // TODO: Test für Urlaub mit MonatsWunsch in Phase 3 implementieren
-        // @Test
-        // @DisplayName("Weist keine Person am Urlaubstag zu")
-        // void weistNichtZuBeiUrlaub() { ... }
+        @Test
+        @DisplayName("Weist keine Person am Urlaubstag zu")
+        void weistNichtZuBeiUrlaub() {
+            // Anna (id=1) hat am 10. Juni 2024 (Montag) Urlaub
+            LocalDate urlaubsDatum = LocalDate.of(2024, 6, 10);
+            List<MonatsWunsch> wuensche = new ArrayList<>();
+            wuensche.add(new MonatsWunsch(1L, urlaubsDatum, WunschTyp.URLAUB));
+
+            DienstplanGenerator generator = new DienstplanGenerator(
+                personen, testMonat, wuensche, new HashMap<>()
+            );
+            DienstplanGenerator.DienstplanGenerierungResult result = generator.generiereDienstplan();
+            Dienstplan dienstplan = result.getDienstplan();
+
+            boolean annaHatDienstAmUrlaubstag = dienstplan.getDienste().stream()
+                .anyMatch(d -> d.getDatum().equals(urlaubsDatum)
+                    && Long.valueOf(1L).equals(d.getPersonId()));
+
+            assertFalse(annaHatDienstAmUrlaubstag,
+                "Anna sollte am Urlaubstag " + urlaubsDatum + " keinen Dienst haben");
+        }
 
         @Test
         @DisplayName("Weist keine Person am falschen Wochentag zu")
@@ -144,7 +163,7 @@ class DienstplanGeneratorTest {
         }
 
         @Test
-        @DisplayName("Keine zwei Dienste an aufeinanderfolgenden Tagen")
+        @DisplayName("Keine zwei Dienste an aufeinanderfolgenden Tagen (außer Visitendienst Wochenende)")
         void keineAufeinanderfolgendenDienste() {
             DienstplanGenerator generator = new DienstplanGenerator(personen, testMonat);
             DienstplanGenerator.DienstplanGenerierungResult result = generator.generiereDienstplan();
@@ -156,6 +175,7 @@ class DienstplanGeneratorTest {
                 List<LocalDate> dienstDaten = dienstplan.getDienste().stream()
                     .filter(d -> person.getId().equals(d.getPersonId()))
                     .map(Dienst::getDatum)
+                    .distinct()
                     .sorted()
                     .toList();
 
@@ -163,11 +183,41 @@ class DienstplanGeneratorTest {
                     LocalDate current = dienstDaten.get(i);
                     LocalDate next = dienstDaten.get(i + 1);
 
-                    assertFalse(current.plusDays(1).equals(next),
-                        person.getName() + " hat aufeinanderfolgende Dienste am "
-                        + current + " und " + next);
+                    if (current.plusDays(1).equals(next)) {
+                        // Aufeinanderfolgende Tage sind nur beim Visitendienst-Wochenendpaket (Sa+So) erlaubt
+                        assertTrue(
+                            istVistenWochenenddienst(dienstplan, person.getId(), current, next),
+                            person.getName() + " hat unerlaubte aufeinanderfolgende Dienste am "
+                                + current + " (" + Wochentag.fromLocalDate(current) + ")"
+                                + " und " + next + " (" + Wochentag.fromLocalDate(next) + ")"
+                        );
+                    }
                 }
             }
+        }
+
+        @Test
+        @DisplayName("Erster Tag nach Urlaub ist frei")
+        void ersterTagNachUrlaubIstFrei() {
+            // Anna (id=1) hat am 10. Juni 2024 (Montag) Urlaub → 11. Juni (Dienstag) muss frei sein
+            LocalDate urlaubsDatum = LocalDate.of(2024, 6, 10);
+            LocalDate tagNachUrlaub = urlaubsDatum.plusDays(1);
+
+            List<MonatsWunsch> wuensche = new ArrayList<>();
+            wuensche.add(new MonatsWunsch(1L, urlaubsDatum, WunschTyp.URLAUB));
+
+            DienstplanGenerator generator = new DienstplanGenerator(
+                personen, testMonat, wuensche, new HashMap<>()
+            );
+            DienstplanGenerator.DienstplanGenerierungResult result = generator.generiereDienstplan();
+            Dienstplan dienstplan = result.getDienstplan();
+
+            boolean annaHatDienstNachUrlaub = dienstplan.getDienste().stream()
+                .anyMatch(d -> d.getDatum().equals(tagNachUrlaub)
+                    && Long.valueOf(1L).equals(d.getPersonId()));
+
+            assertFalse(annaHatDienstNachUrlaub,
+                "Anna sollte am Tag nach dem Urlaub (" + tagNachUrlaub + ") keinen Dienst haben");
         }
     }
 
@@ -224,6 +274,102 @@ class DienstplanGeneratorTest {
         }
     }
 
+    @Nested
+    @DisplayName("Weiche Regeln und Wünsche")
+    class WeicheRegelnTests {
+
+        @Test
+        @DisplayName("Dienstwunsch wird in Wunschstatistik erfasst")
+        void dienstwunschWirdInStatistikErfasst() {
+            // Anna (id=1) hat am 10. Juni 2024 (Montag) einen Dienstwunsch
+            LocalDate dienstwunschDatum = LocalDate.of(2024, 6, 10);
+            List<MonatsWunsch> wuensche = new ArrayList<>();
+            wuensche.add(new MonatsWunsch(1L, dienstwunschDatum, WunschTyp.DIENSTWUNSCH));
+
+            DienstplanGenerator generator = new DienstplanGenerator(
+                personen, testMonat, wuensche, new HashMap<>()
+            );
+            DienstplanGenerator.DienstplanGenerierungResult result = generator.generiereDienstplan();
+
+            assertNotNull(result.getDienstplan());
+            assertNotNull(result.getWunschStatistiken());
+
+            // Wunschstatistik für Anna sollte genau 1 Dienstwunsch erfassen
+            WunschStatistik stat = result.getWunschStatistiken().get(1L);
+            assertNotNull(stat, "Wunschstatistik für Anna (id=1) sollte vorhanden sein");
+            assertEquals(1, stat.getAnzahlDienstwuensche(),
+                "Anna sollte genau 1 Dienstwunsch in der Statistik haben");
+        }
+
+        @Test
+        @DisplayName("Freiwunsch wird in Wunschstatistik erfasst")
+        void freiwunschWirdInStatistikErfasst() {
+            // Bernd (id=2) hat am 3. Juni 2024 (Montag) einen Freiwunsch
+            LocalDate freiwunschDatum = LocalDate.of(2024, 6, 3);
+            List<MonatsWunsch> wuensche = new ArrayList<>();
+            wuensche.add(new MonatsWunsch(2L, freiwunschDatum, WunschTyp.FREIWUNSCH));
+
+            DienstplanGenerator generator = new DienstplanGenerator(
+                personen, testMonat, wuensche, new HashMap<>()
+            );
+            DienstplanGenerator.DienstplanGenerierungResult result = generator.generiereDienstplan();
+
+            assertNotNull(result.getWunschStatistiken());
+
+            // Wunschstatistik für Bernd sollte genau 1 Freiwunsch erfassen
+            WunschStatistik stat = result.getWunschStatistiken().get(2L);
+            assertNotNull(stat, "Wunschstatistik für Bernd (id=2) sollte vorhanden sein");
+            assertEquals(1, stat.getAnzahlFreiwuensche(),
+                "Bernd sollte genau 1 Freiwunsch in der Statistik haben");
+        }
+
+        @Test
+        @DisplayName("Fairness-Scores beeinflussen die Generierung nicht negativ")
+        void fairnessScoresBeeinflusstenGenerierungNichtNegativ() {
+            // Anna erscheint als "benachteiligt" durch historisch niedrige Erfüllung
+            Map<Long, FairnessScore> fairnessScores = new HashMap<>();
+            FairnessScore annaScore = new FairnessScore(1L, "Anna");
+            annaScore.addMonatsDaten(10, 2); // 20% Erfüllungsquote = benachteiligt
+            fairnessScores.put(1L, annaScore);
+
+            DienstplanGenerator generator = new DienstplanGenerator(
+                personen, testMonat, new ArrayList<>(), fairnessScores
+            );
+            DienstplanGenerator.DienstplanGenerierungResult result = generator.generiereDienstplan();
+
+            // Plan muss trotz Fairness-Scores vollständig und erfolgreich generiert werden
+            assertNotNull(result.getDienstplan());
+            assertTrue(result.istErfolgreich());
+            assertTrue(result.getDienstplan().getDienste().size() > 40);
+        }
+
+        @Test
+        @DisplayName("Wunschstatistiken decken alle Personen mit Wünschen ab")
+        void wunschstatistikenDeckenAllePersonenAb() {
+            List<MonatsWunsch> wuensche = new ArrayList<>();
+            wuensche.add(new MonatsWunsch(1L, LocalDate.of(2024, 6, 10), WunschTyp.URLAUB));
+            wuensche.add(new MonatsWunsch(2L, LocalDate.of(2024, 6, 3), WunschTyp.FREIWUNSCH));
+            wuensche.add(new MonatsWunsch(3L, LocalDate.of(2024, 6, 17), WunschTyp.DIENSTWUNSCH));
+
+            DienstplanGenerator generator = new DienstplanGenerator(
+                personen, testMonat, wuensche, new HashMap<>()
+            );
+            DienstplanGenerator.DienstplanGenerierungResult result = generator.generiereDienstplan();
+
+            Map<Long, WunschStatistik> statistiken = result.getWunschStatistiken();
+            assertNotNull(statistiken);
+
+            // Alle drei Personen mit Wünschen müssen in der Statistik erscheinen
+            assertTrue(statistiken.containsKey(1L), "Statistik für Anna (id=1) fehlt");
+            assertTrue(statistiken.containsKey(2L), "Statistik für Bernd (id=2) fehlt");
+            assertTrue(statistiken.containsKey(3L), "Statistik für Clara (id=3) fehlt");
+
+            // Urlaub wird korrekt gezählt
+            assertEquals(1, statistiken.get(1L).getAnzahlUrlaub(),
+                "Anna sollte 1 Urlaubstag in der Statistik haben");
+        }
+    }
+
     // Helper-Methoden
 
     private Person createPerson(Long id, String name, int anzahlDienste,
@@ -234,5 +380,26 @@ class DienstplanGeneratorTest {
         person.setArbeitsTage(arbeitsTage);
         person.setVerfuegbareDienstArten(dienstArten);
         return person;
+    }
+
+    /**
+     * Prüft ob zwei aufeinanderfolgende Dienste das erlaubte Visitendienst-Wochenendpaket (Sa+So) sind.
+     */
+    private boolean istVistenWochenenddienst(Dienstplan dienstplan, Long personId,
+                                              LocalDate ersterTag, LocalDate zweiterTag) {
+        if (Wochentag.fromLocalDate(ersterTag) != Wochentag.SAMSTAG) return false;
+        if (Wochentag.fromLocalDate(zweiterTag) != Wochentag.SONNTAG) return false;
+
+        boolean hatSamstagVisten = dienstplan.getDienste().stream()
+            .anyMatch(d -> d.getDatum().equals(ersterTag)
+                && d.getArt() == DienstArt.VISTEN
+                && personId.equals(d.getPersonId()));
+
+        boolean hatSonntagVisten = dienstplan.getDienste().stream()
+            .anyMatch(d -> d.getDatum().equals(zweiterTag)
+                && d.getArt() == DienstArt.VISTEN
+                && personId.equals(d.getPersonId()));
+
+        return hatSamstagVisten && hatSonntagVisten;
     }
 }
