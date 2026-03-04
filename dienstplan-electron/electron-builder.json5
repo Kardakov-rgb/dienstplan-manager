@@ -1,0 +1,50 @@
+{
+  appId: "de.dienstplan.manager",
+  productName: "Dienstplan-Manager",
+  copyright: "Copyright © 2024",
+  directories: {
+    buildResources: "resources",
+    output: "dist"
+  },
+  files: [
+    "out/**/*"
+  ],
+  extraResources: [],
+  win: {
+    executableName: "dienstplan-manager",
+    target: [{ target: "nsis", arch: ["x64"] }]
+  },
+  nsis: {
+    artifactName: "dienstplan-manager-${version}-setup.${ext}",
+    shortcutName: "${productName}",
+    uninstallDisplayName: "${productName}",
+    createDesktopShortcut: "always"
+  },
+  mac: {
+    entitlementsInherit: "build/entitlements.mac.plist",
+    extendInfo: {
+      NSCameraUsageDescription: "Application requests access to the device's camera.",
+      NSMicrophoneUsageDescription: "Application requests access to the device's microphone.",
+      NSDocumentsFolderUsageDescription: "Application requests access to the user's Documents folder.",
+      NSDownloadsFolderUsageDescription: "Application requests access to the user's Downloads folder."
+    },
+    notarize: false,
+    target: [{ target: "dmg", arch: ["x64", "arm64"] }]
+  },
+  dmg: {
+    artifactName: "dienstplan-manager-${version}.${ext}"
+  },
+  linux: {
+    target: ["AppImage", "deb"],
+    maintainer: "electronjs.org",
+    category: "Utility"
+  },
+  appImage: {
+    artifactName: "dienstplan-manager-${version}.${ext}"
+  },
+  deb: {
+    artifactName: "dienstplan-manager-${version}.${ext}"
+  },
+  npmRebuild: false,
+  publish: { provider: "generic", url: "https://example.com/auto-update" }
+}

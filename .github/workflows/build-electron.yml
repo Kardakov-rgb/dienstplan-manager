@@ -1,0 +1,140 @@
+name: Build Electron App
+
+on:
+  push:
+    branches:
+      - 'claude/**'
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version (z.B. 1.0.0)'
+        required: false
+        default: '1.0.0'
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux
+            artifact: dienstplan-manager-linux
+          - os: windows-latest
+            platform: win
+            artifact: dienstplan-manager-windows
+          - os: macos-latest
+            platform: mac
+            artifact: dienstplan-manager-mac
+
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: dienstplan-electron
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: dienstplan-electron/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Electron App (Linux)
+        if: matrix.platform == 'linux'
+        run: npm run package:linux
+
+      - name: Build Electron App (Windows)
+        if: matrix.platform == 'win'
+        run: npm run package:win
+
+      - name: Build Electron App (macOS)
+        if: matrix.platform == 'mac'
+        run: npm run package:mac
+
+      - name: Upload Linux AppImage
+        if: matrix.platform == 'linux'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}-AppImage
+          path: dienstplan-electron/dist/*.AppImage
+          if-no-files-found: warn
+
+      - name: Upload Linux Deb
+        if: matrix.platform == 'linux'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}-deb
+          path: dienstplan-electron/dist/*.deb
+          if-no-files-found: warn
+
+      - name: Upload Windows Setup
+        if: matrix.platform == 'win'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}-setup
+          path: dienstplan-electron/dist/*-setup.exe
+          if-no-files-found: warn
+
+      - name: Upload macOS DMG
+        if: matrix.platform == 'mac'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}-dmg
+          path: dienstplan-electron/dist/*.dmg
+          if-no-files-found: warn
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Download all Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-artifacts
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: Dienstplan-Manager (Electron) ${{ github.ref_name }}
+          body: |
+            ## Dienstplan-Manager Electron Release
+
+            Neue Electron-basierte Version des Dienstplan-Managers.
+            Keine Java-Installation erforderlich!
+
+            ### Download:
+
+            | Betriebssystem | Download |
+            |----------------|----------|
+            | Windows | `*-setup.exe` |
+            | macOS | `*.dmg` |
+            | Linux | `*.AppImage` oder `*.deb` |
+
+            ### Installation:
+            - **Windows**: Setup-Datei ausführen
+            - **macOS**: DMG öffnen und App in Programme ziehen
+            - **Linux AppImage**: Ausführbar machen (`chmod +x`) und starten
+            - **Linux Deb**: `sudo dpkg -i *.deb`
+          files: |
+            release-artifacts/**/*.AppImage
+            release-artifacts/**/*.deb
+            release-artifacts/**/*-setup.exe
+            release-artifacts/**/*.dmg
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
